@@ -162,6 +162,17 @@ loadconfig()
 {
     if(!gtk_widget_get_visible(main_menu))
     {
+        if(feeds != NULL)
+        {
+            while(feeds != NULL)
+            {
+                gtk_widget_destroy(feeds->submenu);
+                feeds = feeds->next;
+            }
+        }
+        gtk_widget_destroy(main_menu);
+        main_menu = gtk_menu_new();
+
         feeds = NULL;
         
         FILE *config;
@@ -190,7 +201,6 @@ loadconfig()
         fclose(config);
         
         GtkWidget *item;
-        main_menu = gtk_menu_new();
         
         FeedList *feedlist = feeds;
         
