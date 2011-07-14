@@ -1,0 +1,14 @@
+feedreader is a light-weight RSS reader that sits in the user's system tray.
+It requires on GTK2 and libxml2.
+
+USAGE
+Feeds are added via a file called ".rssfeeds" in located in the user's $HOME folder.
+This file will not be created automatically, so it is up to the user to do so.
+The layout is one feed per line with the following format:
+
+Feed Title\Feed URL
+
+Example:
+
+My Favorite RSS\http://www.example.com/feed.rss
+
