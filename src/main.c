@@ -23,74 +23,65 @@
 #include <libxml/parser.h>
 #include "icon.h"
 
+#define UPDATE_INTERVAL 120 // in seconds
+#define BROWSER "xdg-open"
+
 static GtkWidget *main_menu = NULL;
 static GtkWidget *alt_menu = NULL;
-static GtkWidget *art_menu = NULL;
 static GtkStatusIcon *status_icon = NULL;
-static xmlDoc *feedfile;
-static xmlNode *feednode;
 
-typedef struct UriList
+static void add_FeedList(char *name, char *uri);
+static void open_link(gpointer data);
+static int parsefeed(const gchar *f, GtkWidget *submenu);
+static gboolean loadconfig();
+static void destroy(GtkWidget *widget, gpointer data);
+static void primary_menu (GtkStatusIcon *status_icon, gpointer user_data);
+static void alternate_menu(GtkStatusIcon *status_icon, guint button, guint activate_time, gpointer user_data);
+
+typedef struct FeedList
 {
     char *name;
     char *uri;
-    struct UriList *next;
-}UriList;
+    GtkWidget *submenu;
+    struct FeedList *next;
+}FeedList;
 
-UriList *uris = NULL;
+FeedList *feeds = NULL;
 
 static void
-add_UriList(char *name, char *uri)
+add_FeedList(char *name, char *uri)
 {
-    UriList *temp;
+    FeedList *temp;
     
-    temp = (UriList *)malloc(sizeof(UriList));
+    temp = (FeedList *)malloc(sizeof(FeedList));
     temp->name = name;
     temp->uri = uri;
+    temp->submenu = gtk_menu_new();
     
-    if(uris == NULL)
+    if(feeds == NULL)
     {
-        uris = temp;
-        uris->next = NULL;
+        feeds = temp;
+        feeds->next = NULL;
     }
     else
     {
-        temp->next = uris;
-        uris = temp;
+        temp->next = feeds;
+        feeds = temp;
     }
 }
 
 static void
-loadconfig()
+open_link(gpointer data)
 {
-    FILE *config;
-    char *homedir = getenv("HOME");
-    char *name;
-    char *url;
-    char buffer[BUFSIZ];
-    char *temp;
-    
-    if ((config = fopen(g_strconcat(homedir,"/.rssfeeds",NULL),"r")) == NULL)
-    {
-        g_print("Error: can't open config");
-        return;
-    }
-    
-    while(fgets(buffer,BUFSIZ,config) != NULL)
-    {        
-        temp = buffer;
-        name=strtok(temp,"\\");
-        url=strtok(NULL,"\n");
-        
-        //This is awful, but for now it's the only way I'm passing these two strings
-        add_UriList(g_strconcat(name,NULL),g_strconcat(url,NULL));
-    }
-    
-    fclose(config);
+    gchar *link = gtk_widget_get_tooltip_text(data);
+    gchar *command = g_strconcat(BROWSER," \"",link,"\"",NULL);
+    g_print("%s\n",command);
+    system(command);
+    g_free(command);
 }
 
 static int
-parsefeed(const gchar *f)
+parsefeed(const gchar *f, GtkWidget *submenu)
 {
     xmlDocPtr file;
     xmlNodePtr node;
@@ -119,9 +110,108 @@ parsefeed(const gchar *f)
         return 1;
     }
     
-    feedfile = file;
-    feednode = node;
+    static GtkWidget *item;
+    node = node->xmlChildrenNode;
+    
+    while (node != NULL)
+    {
+        if ((!xmlStrcmp(node->name, (const xmlChar *)"channel")))
+        {
+            xmlNodePtr child_item = node->xmlChildrenNode;
+            while (child_item != NULL)
+            {
+                if ((!xmlStrcmp(child_item->name, (const xmlChar *)"item")))
+                {
+                    xmlChar *title;
+                    xmlChar *link;
+                    xmlNodePtr child_details = child_item->xmlChildrenNode;
+                    while (child_details != NULL)
+                    {
+                        if ((!xmlStrcmp(child_details->name, (const xmlChar *)"title")))
+                        {
+                            title = xmlNodeListGetString(file, child_details->xmlChildrenNode, 1);
+                            item = gtk_menu_item_new_with_label((const gchar *)title);
+                            gtk_menu_append(submenu, item);
+                            xmlFree(title);
+                        }
+                        if ((!xmlStrcmp(child_details->name, (const xmlChar *)"link")))
+                        {
+                            link = xmlNodeListGetString(file, child_details->xmlChildrenNode, 1);
+                            gtk_widget_set_tooltip_text(item,(const gchar *)link);
+                            g_signal_connect(G_OBJECT(item),"activate",G_CALLBACK(open_link),NULL);
+                            xmlFree(link);
+                        }
+
+                        child_details = child_details->next;
+                    }
+                }
+                child_item = child_item->next;
+            }
+        }
+        node = node->next;
+    }
+    
+    xmlFreeDoc(file);
+    xmlFreeNode(node);
+
     return 0;
+}
+
+static gboolean
+loadconfig()
+{
+    if(!gtk_widget_get_visible(main_menu))
+    {
+        feeds = NULL;
+        
+        FILE *config;
+        char *homedir = getenv("HOME");
+        char *name;
+        char *url;
+        char buffer[BUFSIZ];
+        char *temp;
+        
+        if ((config = fopen(g_strconcat(homedir,"/.rssfeeds",NULL),"r")) == NULL)
+        {
+            g_print("Error: can't open config");
+            return TRUE;
+        }
+        
+        while(fgets(buffer,BUFSIZ,config) != NULL)
+        {        
+            temp = buffer;
+            name=strtok(temp,"\\");
+            url=strtok(NULL,"\n");
+            
+            //This is awful, but for now it's the only way I'm passing these two strings
+            add_FeedList(g_strconcat(name,NULL),g_strconcat(url,NULL));
+        }
+    
+        fclose(config);
+        
+        GtkWidget *item;
+        main_menu = gtk_menu_new();
+        
+        FeedList *feedlist = feeds;
+        
+        while(feedlist != NULL)
+        {
+            item = gtk_menu_item_new_with_label(feedlist->name);
+            gtk_widget_set_tooltip_text(item,(const gchar *)feedlist->uri);
+            gtk_widget_set_has_tooltip(item,FALSE);
+            parsefeed(feedlist->uri,feedlist->submenu);
+            gtk_menu_item_set_submenu(GTK_MENU_ITEM(item), feedlist->submenu);
+            gtk_menu_append(main_menu, item);
+            feedlist = feedlist->next;
+        }
+        
+        GtkWidget *sep = gtk_separator_menu_item_new();
+        item = gtk_menu_item_new_with_label("Reload Feeds");
+        g_signal_connect (G_OBJECT(item), "activate", G_CALLBACK(loadconfig), NULL);
+        gtk_menu_append(main_menu, sep);
+        gtk_menu_append(main_menu, item);
+    }
+    return TRUE;
 }
 
 static void 
@@ -131,119 +221,8 @@ destroy(GtkWidget *widget, gpointer data)
 }
 
 static void
-open_link(gpointer data)
-{
-    gchar *link = gtk_widget_get_tooltip_text(data);
-    gchar *command = g_strconcat("xdg-open \"",link,"\"",NULL);
-    g_print("%s\n",command);
-    system(command);
-    g_free(command);
-}
-
-static GtkWidget *
-article_menu(const gchar * url)
-{
-    if(parsefeed(url) == 0)
-    {
-        if (!art_menu)
-        {
-            static GtkWidget *item;
-            art_menu = gtk_menu_new();
-            feednode = feednode->xmlChildrenNode;
-            
-            while (feednode != NULL)
-            {
-                if ((!xmlStrcmp(feednode->name, (const xmlChar *)"channel")))
-                {
-                    xmlNodePtr child_item = feednode->xmlChildrenNode;
-                    while (child_item != NULL)
-                    {
-                        //item = NULL;
-                        if ((!xmlStrcmp(child_item->name, (const xmlChar *)"item")))
-                        {
-                            xmlChar *title;
-                            xmlChar *link;
-                            xmlNodePtr child_details = child_item->xmlChildrenNode;
-                            while (child_details != NULL)
-                            {
-                                if ((!xmlStrcmp(child_details->name, (const xmlChar *)"title")))
-                                {
-                                    title = xmlNodeListGetString(feedfile, child_details->xmlChildrenNode, 1);
-                                    item = gtk_menu_item_new_with_label((const gchar *)title);
-                                    gtk_menu_append(art_menu, item);
-                                    xmlFree(title);
-                                }
-                                if ((!xmlStrcmp(child_details->name, (const xmlChar *)"link")))
-                                {
-                                    link = xmlNodeListGetString(feedfile, child_details->xmlChildrenNode, 1);
-                                    gtk_widget_set_tooltip_text(item,(const gchar *)link);
-                                    g_signal_connect(G_OBJECT(item),"activate",G_CALLBACK(open_link),NULL);
-                                    xmlFree(link);
-                                }
-
-                                child_details = child_details->next;
-                            }
-                        }
-                        child_item = child_item->next;
-                    }
-                }
-                feednode = feednode->next;
-            }
-        }
-    }
-    else
-    {
-        art_menu = gtk_menu_new();
-    }
-    
-    gtk_widget_show_all(art_menu);
-    return art_menu;
-}
-
-static void
-primary_menu_select(GtkMenuItem * item)
-{
-    GtkWidget * sub = gtk_menu_item_get_submenu(item);
-    if (sub != NULL)
-    {
-        sub = article_menu(gtk_widget_get_tooltip_text((GtkWidget *)item));
-        gtk_menu_item_set_submenu(item, sub);
-    }
-}
-
-static void
-primary_menu_deselect(GtkMenuItem * item)
-{
-    xmlFreeDoc(feedfile);
-    xmlFreeNode(feednode);
-    gtk_menu_item_set_submenu(item, gtk_menu_new());
-    art_menu = NULL;
-}
-
-static void
 primary_menu (GtkStatusIcon *status_icon, gpointer user_data)
 {
-    if (!main_menu)
-    {
-        GtkWidget *item;
-        main_menu = gtk_menu_new();
-        
-        UriList *urilist = uris;
-        
-        while(urilist != NULL)
-        {
-            item = gtk_menu_item_new_with_label(urilist->name);
-            gtk_widget_set_tooltip_text(item,(const gchar *)urilist->uri);
-            gtk_widget_set_has_tooltip(item,FALSE);
-            GtkWidget * dummy = gtk_menu_new();
-            gtk_menu_item_set_submenu(GTK_MENU_ITEM(item), dummy);
-            gtk_menu_append(main_menu, item);
-            g_signal_connect (G_OBJECT(item), "activate", G_CALLBACK(primary_menu_select), item);
-            g_signal_connect (G_OBJECT(item), "deselect", G_CALLBACK(primary_menu_deselect), item);
-            urilist = urilist->next;
-        }
-    }
-
     gtk_widget_show_all(main_menu);
 
     gtk_menu_popup(GTK_MENU(main_menu), NULL, NULL, gtk_status_icon_position_menu, status_icon, 0, gtk_get_current_event_time());
@@ -264,7 +243,6 @@ alternate_menu(GtkStatusIcon *status_icon, guint button, guint activate_time, gp
     }
 
     gtk_widget_show_all(alt_menu);
-
     gtk_menu_popup(GTK_MENU(alt_menu), NULL, NULL, NULL, status_icon, button, activate_time);
 }
 
@@ -278,11 +256,14 @@ int main( int argc, char* argv[] )
 
     gtk_status_icon_set_tooltip(status_icon, "feedreader");
     
-    /* Connect signals */
+    // Connect tray icon signals
     g_signal_connect (G_OBJECT (status_icon), "activate", G_CALLBACK (primary_menu), NULL);
     g_signal_connect (G_OBJECT (status_icon), "popup-menu", G_CALLBACK (alternate_menu), NULL);
     
-    // Load rss feeds from $HOME/.rssfeeds
+    // Add a timer for updating feeds
+    g_timeout_add_seconds(UPDATE_INTERVAL, (GSourceFunc) loadconfig, NULL);
+    
+    // Load feeds on startup
     loadconfig();
     
     gtk_main();
