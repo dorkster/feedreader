@@ -238,7 +238,7 @@ primary_menu (GtkStatusIcon *status_icon, gpointer user_data)
             GtkWidget * dummy = gtk_menu_new();
             gtk_menu_item_set_submenu(GTK_MENU_ITEM(item), dummy);
             gtk_menu_append(main_menu, item);
-            g_signal_connect (G_OBJECT(item), "select", G_CALLBACK(primary_menu_select), item);
+            g_signal_connect (G_OBJECT(item), "activate", G_CALLBACK(primary_menu_select), item);
             g_signal_connect (G_OBJECT(item), "deselect", G_CALLBACK(primary_menu_deselect), item);
             urilist = urilist->next;
         }
