@@ -21,6 +21,7 @@
 #include <gtk/gtk.h>
 #include <libxml/tree.h>
 #include <libxml/parser.h>
+#include <curl/curl.h>
 #include "icon.h"
 
 #define UPDATE_INTERVAL 120 // in seconds
@@ -30,13 +31,38 @@ static GtkWidget *main_menu = NULL;
 static GtkWidget *alt_menu = NULL;
 static GtkStatusIcon *status_icon = NULL;
 
+static size_t WriteMemoryCallback(void *ptr, size_t size, size_t nmemb, void *data);
 static void add_FeedList(char *name, char *uri);
 static void open_link(gpointer data);
-static int parsefeed(const gchar *f, GtkWidget *submenu);
+static void parsefeed(const gchar *f, GtkWidget *submenu);
 static gboolean loadconfig();
 static void destroy(GtkWidget *widget, gpointer data);
 static void primary_menu (GtkStatusIcon *status_icon, gpointer user_data);
 static void alternate_menu(GtkStatusIcon *status_icon, guint button, guint activate_time, gpointer user_data);
+
+struct MemoryStruct {
+  char *memory;
+  size_t size;
+};
+
+static size_t
+WriteMemoryCallback(void *ptr, size_t size, size_t nmemb, void *data)
+{
+    size_t realsize = size * nmemb;
+    struct MemoryStruct *mem = (struct MemoryStruct *)data;
+
+    mem->memory = realloc(mem->memory, mem->size + realsize + 1);
+    if (mem->memory == NULL) {
+        printf("not enough memory (realloc returned NULL)\n");
+        exit(EXIT_FAILURE);
+    }
+
+    memcpy(&(mem->memory[mem->size]), ptr, realsize);
+    mem->size += realsize;
+    mem->memory[mem->size] = 0;
+
+    return realsize;
+}
 
 typedef struct FeedList
 {
@@ -80,18 +106,42 @@ open_link(gpointer data)
     g_free(command);
 }
 
-static int
+static void
 parsefeed(const gchar *f, GtkWidget *submenu)
 {
-    xmlDocPtr file;
+    xmlDocPtr file = NULL;
     xmlNodePtr node;
     
-    file = xmlParseFile(f);
+    CURL *curl_handle;
+
+    struct MemoryStruct chunk;
+
+    chunk.memory = malloc(1);
+    chunk.size = 0;
+
+    curl_global_init(CURL_GLOBAL_ALL);
+
+    curl_handle = curl_easy_init();
+    curl_easy_setopt(curl_handle, CURLOPT_URL, f);
+    curl_easy_setopt(curl_handle, CURLOPT_WRITEFUNCTION, WriteMemoryCallback);
+    curl_easy_setopt(curl_handle, CURLOPT_WRITEDATA, (void *)&chunk);
+    curl_easy_setopt(curl_handle, CURLOPT_USERAGENT, "libcurl-agent/1.0");
+
+    curl_easy_perform(curl_handle);
+    curl_easy_cleanup(curl_handle);
+
+    if(chunk.memory)
+    {
+        file = xmlParseMemory(chunk.memory,chunk.size);
+        free(chunk.memory);
+    }
+    
+    curl_global_cleanup();
 
     if (file == NULL )
     {
         fprintf(stderr,"Document not parsed successfully. \n");
-        return 1;
+        return;
     }
     
     node = xmlDocGetRootElement(file);
@@ -100,14 +150,14 @@ parsefeed(const gchar *f, GtkWidget *submenu)
     {
         fprintf(stderr,"empty document\n");
         xmlFreeDoc(file);
-        return 1;
+        return;
     }
 
     if (xmlStrcmp(node->name, (const xmlChar *) "rss"))
     {
         fprintf(stderr,"document of the wrong type, root node != rss");
         xmlFreeDoc(file);
-        return 1;
+        return;
     }
     
     static GtkWidget *item;
@@ -154,7 +204,7 @@ parsefeed(const gchar *f, GtkWidget *submenu)
     xmlFreeDoc(file);
     xmlFreeNode(node);
 
-    return 0;
+    return;
 }
 
 static gboolean

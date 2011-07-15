@@ -2,12 +2,12 @@ PROJNAME=feedreader
 ifdef NOGTK
 SOURCES=src/main.c
 CFLAGS=-DNOGTK
-GTKCFLAGS=`pkg-config --cflags glib-2.0` `xml2-config --cflags`
-GTKLDFLAGS=`pkg-config --libs glib-2.0` `xml2-config --libs`
+GTKCFLAGS=`pkg-config --cflags glib-2.0` `xml2-config --cflags` `curl-config --cflags`
+GTKLDFLAGS=`pkg-config --libs glib-2.0` `xml2-config --libs` `curl-config --libs`
 else
 SOURCES=src/main.c
-GTKCFLAGS=`pkg-config --cflags gtk+-2.0` `xml2-config --cflags`
-GTKLDFLAGS=`pkg-config --libs gtk+-2.0` `xml2-config --libs`
+GTKCFLAGS=`pkg-config --cflags gtk+-2.0` `xml2-config --cflags` `curl-config --cflags`
+GTKLDFLAGS=`pkg-config --libs gtk+-2.0` `xml2-config --libs` `curl-config --libs`
 endif
 ifndef DESTDIR
 DESTDIR=/usr/local/bin
