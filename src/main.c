@@ -257,11 +257,18 @@ loadconfig()
         while(feedlist != NULL)
         {
             item = gtk_menu_item_new_with_label(feedlist->name);
-            gtk_widget_set_tooltip_text(item,(const gchar *)feedlist->uri);
-            gtk_widget_set_has_tooltip(item,FALSE);
-            parsefeed(feedlist->uri,feedlist->submenu);
-            gtk_menu_item_set_submenu(GTK_MENU_ITEM(item), feedlist->submenu);
-            gtk_menu_append(main_menu, item);
+            if(!strcmp(feedlist->uri,"LABEL"))
+            {
+                gtk_widget_set_sensitive(item,FALSE);
+            }
+            else
+            {
+                gtk_widget_set_tooltip_text(item,(const gchar *)feedlist->uri);
+                gtk_widget_set_has_tooltip(item,FALSE);
+                parsefeed(feedlist->uri,feedlist->submenu);
+                gtk_menu_item_set_submenu(GTK_MENU_ITEM(item), feedlist->submenu);
+            }
+            gtk_menu_prepend(main_menu, item);
             feedlist = feedlist->next;
         }
         

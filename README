@@ -6,9 +6,15 @@ Feeds are added via a file called ".rssfeeds" in located in the user's $HOME fol
 This file will not be created automatically, so it is up to the user to do so.
 The layout is one feed per line with the following format:
 
-Feed Title\Feed URL
+    Feed Title\Feed URL
 
 Example:
 
-My Favorite RSS\http://www.example.com/feed.rss
+    My Favorite RSS\http://www.example.com/feed.rss
 
+In addition, labels can be created to help organize the user's list of feeds.
+This is done by replacing the URL with "LABEL".
+
+Example:
+
+    My Category\LABEL
