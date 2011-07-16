@@ -26,6 +26,7 @@
 
 #define UPDATE_INTERVAL 120 // in seconds
 #define BROWSER "xdg-open"
+#define MAXLABELSIZE 70
 
 static GtkWidget *main_menu = NULL;
 static GtkWidget *alt_menu = NULL;
@@ -180,7 +181,16 @@ parsefeed(const gchar *f, GtkWidget *submenu)
                         if ((!xmlStrcmp(child_details->name, (const xmlChar *)"title")))
                         {
                             title = xmlNodeListGetString(file, child_details->xmlChildrenNode, 1);
-                            item = gtk_menu_item_new_with_label((const gchar *)title);
+                            if(strlen((char *)title) > MAXLABELSIZE)
+                            {
+                                gchar *newtitle = g_strndup((const gchar *)title,MAXLABELSIZE);
+                                item = gtk_menu_item_new_with_label(g_strconcat(newtitle,"...",NULL));
+                                g_free(newtitle);
+                            }
+                            else
+                            {
+                                item = gtk_menu_item_new_with_label((const gchar *)title);
+                            }
                             gtk_menu_append(submenu, item);
                             xmlFree(title);
                         }
