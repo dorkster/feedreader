@@ -273,7 +273,8 @@ loadconfig()
         }
         
         GtkWidget *sep = gtk_separator_menu_item_new();
-        item = gtk_menu_item_new_with_label("Reload Feeds");
+        item = gtk_image_menu_item_new_with_label("Reload Feeds");
+        gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(item),gtk_image_new_from_stock(GTK_STOCK_REFRESH, GTK_ICON_SIZE_MENU));
         g_signal_connect (G_OBJECT(item), "activate", G_CALLBACK(loadconfig), NULL);
         gtk_menu_append(main_menu, sep);
         gtk_menu_append(main_menu, item);
