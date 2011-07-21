@@ -255,7 +255,10 @@ loadconfig()
             url=strtok(NULL,"\n");
             
             //This is awful, but for now it's the only way I'm passing these two strings
-            add_FeedList(g_strconcat(name,NULL),g_strconcat(url,NULL));
+            if(url !=  NULL)
+            {
+                add_FeedList(g_strconcat(name,NULL),g_strconcat(url,NULL));
+            }
         }
     
         fclose(config);
