@@ -27,6 +27,7 @@
 #define UPDATE_INTERVAL 120 // in seconds
 #define BROWSER "xdg-open"
 #define MAXLABELSIZE 70
+#define NETTIMEOUT 15 // in seconds
 
 static GtkWidget *main_menu = NULL;
 static GtkWidget *alt_menu = NULL;
@@ -127,6 +128,7 @@ parsefeed(const gchar *f, GtkWidget *submenu)
     curl_easy_setopt(curl_handle, CURLOPT_WRITEFUNCTION, WriteMemoryCallback);
     curl_easy_setopt(curl_handle, CURLOPT_WRITEDATA, (void *)&chunk);
     curl_easy_setopt(curl_handle, CURLOPT_USERAGENT, "libcurl-agent/1.0");
+    curl_easy_setopt(curl_handle, CURLOPT_TIMEOUT, NETTIMEOUT);
 
     curl_easy_perform(curl_handle);
     curl_easy_cleanup(curl_handle);
