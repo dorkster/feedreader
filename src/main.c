@@ -27,7 +27,7 @@
 #define UPDATE_INTERVAL 120 // in seconds
 #define BROWSER "xdg-open"
 #define MAXLABELSIZE 70
-#define NETTIMEOUT 5 // in seconds
+#define NETTIMEOUT 10 // in seconds
 
 static GtkWidget *main_menu = NULL;
 static GtkWidget *alt_menu = NULL;
