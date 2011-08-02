@@ -30,6 +30,8 @@
 #define MAXLABELSIZE 70
 #define NETTIMEOUT 10 // in seconds
 
+pthread_mutex_t mutex;
+
 static GtkWidget *main_menu = NULL;
 static GtkWidget *alt_menu = NULL;
 static GtkStatusIcon *status_icon = NULL;
@@ -112,6 +114,8 @@ open_link(gpointer data)
 static void
 *parsefeed(void *arg)
 {
+    pthread_mutex_lock(&mutex);
+    
     FeedList *list = (FeedList*)arg;
     gchar *f = list->uri;
     GtkWidget *submenu = list->submenu;
@@ -221,6 +225,7 @@ static void
     xmlFreeDoc(file);
     xmlFreeNode(node);
 
+    pthread_mutex_unlock(&mutex);
     return 0;
 }
 
@@ -286,8 +291,10 @@ loadconfig()
                 gtk_widget_set_has_tooltip(item,FALSE);
                 
                 // Make a thread to download and parse the feed
+                pthread_mutex_init(&mutex,NULL);            
                 pthread_t pth;
                 pthread_create(&pth,NULL,parsefeed,feedlist);
+                pthread_mutex_destroy(&mutex);
                 
                 gtk_menu_item_set_submenu(GTK_MENU_ITEM(item), feedlist->submenu);
             }
