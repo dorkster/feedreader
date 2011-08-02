@@ -22,6 +22,7 @@
 #include <libxml/tree.h>
 #include <libxml/parser.h>
 #include <curl/curl.h>
+#include <pthread.h>
 #include "icon.h"
 
 #define UPDATE_INTERVAL 120 // in seconds
@@ -36,7 +37,7 @@ static GtkStatusIcon *status_icon = NULL;
 static size_t WriteMemoryCallback(void *ptr, size_t size, size_t nmemb, void *data);
 static void add_FeedList(char *name, char *uri);
 static void open_link(gpointer data);
-static void parsefeed(const gchar *f, GtkWidget *submenu);
+static void *parsefeed(void *arg);
 static gboolean loadconfig();
 static void destroy(GtkWidget *widget, gpointer data);
 static void primary_menu (GtkStatusIcon *status_icon, gpointer user_data);
@@ -109,8 +110,12 @@ open_link(gpointer data)
 }
 
 static void
-parsefeed(const gchar *f, GtkWidget *submenu)
+*parsefeed(void *arg)
 {
+    FeedList *list = (FeedList*)arg;
+    gchar *f = list->uri;
+    GtkWidget *submenu = list->submenu;
+    
     xmlDocPtr file = NULL;
     xmlNodePtr node;
     
@@ -144,7 +149,7 @@ parsefeed(const gchar *f, GtkWidget *submenu)
     if (file == NULL )
     {
         fprintf(stderr,"Document not parsed successfully. \n");
-        return;
+        return NULL;
     }
     
     node = xmlDocGetRootElement(file);
@@ -153,14 +158,14 @@ parsefeed(const gchar *f, GtkWidget *submenu)
     {
         fprintf(stderr,"empty document\n");
         xmlFreeDoc(file);
-        return;
+        return NULL;
     }
 
     if (xmlStrcmp(node->name, (const xmlChar *) "rss"))
     {
         fprintf(stderr,"document of the wrong type, root node != rss");
         xmlFreeDoc(file);
-        return;
+        return NULL;
     }
     
     static GtkWidget *item;
@@ -216,7 +221,7 @@ parsefeed(const gchar *f, GtkWidget *submenu)
     xmlFreeDoc(file);
     xmlFreeNode(node);
 
-    return;
+    return 0;
 }
 
 static gboolean
@@ -279,7 +284,11 @@ loadconfig()
             {
                 gtk_widget_set_tooltip_text(item,(const gchar *)feedlist->uri);
                 gtk_widget_set_has_tooltip(item,FALSE);
-                parsefeed(feedlist->uri,feedlist->submenu);
+                
+                // Make a thread to download and parse the feed
+                pthread_t pth;
+                pthread_create(&pth,NULL,parsefeed,feedlist);
+                
                 gtk_menu_item_set_submenu(GTK_MENU_ITEM(item), feedlist->submenu);
             }
             gtk_menu_prepend(main_menu, item);

@@ -3,11 +3,11 @@ ifdef NOGTK
 SOURCES=src/main.c
 CFLAGS=-DNOGTK
 GTKCFLAGS=`pkg-config --cflags glib-2.0` `xml2-config --cflags` `curl-config --cflags`
-GTKLDFLAGS=`pkg-config --libs glib-2.0` `xml2-config --libs` `curl-config --libs`
+GTKLDFLAGS=`pkg-config --libs glib-2.0` `xml2-config --libs` `curl-config --libs` -lpthread
 else
 SOURCES=src/main.c
 GTKCFLAGS=`pkg-config --cflags gtk+-2.0` `xml2-config --cflags` `curl-config --cflags`
-GTKLDFLAGS=`pkg-config --libs gtk+-2.0` `xml2-config --libs` `curl-config --libs`
+GTKLDFLAGS=`pkg-config --libs gtk+-2.0` `xml2-config --libs` `curl-config --libs` -lpthread
 endif
 ifndef DESTDIR
 DESTDIR=/usr/local/bin
