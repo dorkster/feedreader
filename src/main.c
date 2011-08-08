@@ -254,25 +254,24 @@ loadconfig()
         char buffer[BUFSIZ];
         char *temp;
         
-        if ((config = fopen(g_strconcat(homedir,"/.rssfeeds",NULL),"r")) == NULL)
-        {
-            g_print("Error: can't open config");
-            return TRUE;
-        }
+        config = fopen(g_strconcat(homedir,"/.rssfeeds",NULL),"r+");
         
-        while(fgets(buffer,BUFSIZ,config) != NULL)
-        {        
-            temp = buffer;
-            name=strtok(temp,"\\");
-            url=strtok(NULL,"\n");
-            
-            if(url !=  NULL)
-            {
-                add_FeedList(g_strdup(name),g_strdup(url));
+        if(config != NULL)
+        {
+            while(fgets(buffer,BUFSIZ,config) != NULL)
+            {        
+                temp = buffer;
+                name=strtok(temp,"\\");
+                url=strtok(NULL,"\n");
+                
+                if(url !=  NULL)
+                {
+                    add_FeedList(g_strdup(name),g_strdup(url));
+                }
             }
+
+            fclose(config);
         }
-    
-        fclose(config);
         
         GtkWidget *item;
         
@@ -301,6 +300,8 @@ loadconfig()
             gtk_menu_prepend(main_menu, item);
             feedlist = feedlist->next;
         }
+        
+        free(feedlist);
         
         GtkWidget *sep = gtk_separator_menu_item_new();
         item = gtk_image_menu_item_new_with_label("Reload Feeds");
