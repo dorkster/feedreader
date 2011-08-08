@@ -232,17 +232,22 @@ static void
 static gboolean
 loadconfig()
 {
-    if(!gtk_widget_get_visible(main_menu))
+    if(main_menu == NULL || !gtk_widget_get_visible(main_menu))
     {
-        if(feeds != NULL)
+        if(main_menu != NULL)
         {
-            while(feeds != NULL)
+            if(feeds != NULL)
             {
-                gtk_widget_destroy(feeds->submenu);
-                feeds = feeds->next;
+                while(feeds != NULL)
+                {
+                    gtk_widget_destroy(feeds->submenu);
+                    feeds = feeds->next;
+                }
             }
-        }
+
         gtk_widget_destroy(main_menu);
+        }
+
         main_menu = gtk_menu_new();
 
         feeds = NULL;
