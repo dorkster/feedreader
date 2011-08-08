@@ -25,7 +25,7 @@
 #include <pthread.h>
 #include "icon.h"
 
-#define UPDATE_INTERVAL 120 // in seconds
+#define UPDATE_INTERVAL 300 // in seconds
 #define BROWSER "xdg-open"
 #define MAXLABELSIZE 70
 #define NETTIMEOUT 10 // in seconds
