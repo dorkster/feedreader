@@ -26,7 +26,7 @@ $(EXECUTABLE): $(OBJECTS)
 	$(CC) $(OBJECTS) $(LDFLAGS) -Wall -O2 -mms-bitfields -std=c99 -o $@
 
 .c.o:
-	$(CC) $< $ $(CFLAGS) -c -g -Wall -O2 -mms-bitfields -std=c99 -o $@
+	$(CC) $< $ $(CFLAGS) -c -Wall -O2 -mms-bitfields -std=c99 -o $@
 
 install:
 	cp $(EXECUTABLE) $(DESTDIR)
