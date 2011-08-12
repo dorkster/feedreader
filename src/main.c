@@ -298,7 +298,7 @@ loadconfig()
                 pthread_mutex_init(&mutex,NULL);
                 pthread_t pth;
                 pthread_create(&pth,NULL,parsefeed,feedlist);
-                pthread_join(pth, NULL);
+                pthread_detach(pth);
                 pthread_mutex_destroy(&mutex);
                 
                 gtk_menu_item_set_submenu(GTK_MENU_ITEM(item), feedlist->submenu);
