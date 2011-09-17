@@ -115,7 +115,7 @@ open_link(gpointer data)
 static void
 *parsefeed(void *arg)
 {
-    pthread_mutex_lock(&mutex);
+    pthread_mutex_trylock(&mutex);
     
     FeedList *list = (FeedList*)arg;
     gchar *f = list->uri;
