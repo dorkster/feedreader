@@ -286,6 +286,8 @@ loadconfig()
         while(feedlist != NULL)
         {
             item = gtk_menu_item_new_with_label(feedlist->name);
+            gtk_menu_item_set_submenu(GTK_MENU_ITEM(item), NULL);
+            
             if(!strcmp(feedlist->uri,"LABEL"))
             {
                 char *markup;
