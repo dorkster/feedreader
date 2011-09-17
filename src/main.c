@@ -29,7 +29,7 @@
 #define UPDATE_INTERVAL 300 // in seconds
 #define BROWSER "xdg-open"
 #define MAXLABELSIZE 70
-#define NETTIMEOUT 10 // in seconds
+#define NETTIMEOUT 20 // in seconds
 
 pthread_mutex_t mutex;
 
@@ -288,6 +288,13 @@ loadconfig()
             item = gtk_menu_item_new_with_label(feedlist->name);
             if(!strcmp(feedlist->uri,"LABEL"))
             {
+                char *markup;
+                GtkWidget * label = gtk_bin_get_child (GTK_BIN(item));
+                
+                markup = g_markup_printf_escaped ("<b>%s</b>", feedlist->name);
+                gtk_label_set_markup ((GtkLabel *)label, markup);
+                
+                g_free (markup);
                 gtk_widget_set_sensitive(item,FALSE);
             }
             else
@@ -296,11 +303,9 @@ loadconfig()
                 gtk_widget_set_has_tooltip(item,FALSE);
                 
                 // Make a thread to download and parse the feed
-                pthread_mutex_init(&mutex,NULL);
                 pthread_t pth;
                 pthread_create(&pth,NULL,parsefeed,feedlist);
                 pthread_detach(pth);
-                pthread_mutex_destroy(&mutex);
                 
                 gtk_menu_item_set_submenu(GTK_MENU_ITEM(item), feedlist->submenu);
             }
@@ -355,6 +360,7 @@ alternate_menu(GtkStatusIcon *status_icon, guint button, guint activate_time, gp
 int main( int argc, char* argv[] )
 {
     gtk_init( &argc, &argv );
+    pthread_mutex_init(&mutex,NULL);
     
     // Set the status icon and make it visible
     status_icon = gtk_status_icon_new_from_pixbuf(gdk_pixbuf_new_from_inline(-1,icon,FALSE,NULL));
@@ -373,6 +379,7 @@ int main( int argc, char* argv[] )
     loadconfig();
     
     gtk_main();
-
+    pthread_mutex_destroy(&mutex);
+    
     return 0;
 }
