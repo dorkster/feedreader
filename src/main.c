@@ -118,8 +118,14 @@ static void
     pthread_mutex_trylock(&mutex);
     
     FeedList *list = (FeedList*)arg;
-    gchar *f = list->uri;
-    GtkWidget *submenu = list->submenu;
+    gchar *f = NULL;
+    GtkWidget *submenu = NULL;
+    
+    if(list != NULL)
+    {
+        f = list->uri;
+        submenu = list->submenu;
+    }
     
     xmlDocPtr file = NULL;
     xmlNodePtr node;
@@ -134,7 +140,8 @@ static void
     curl_global_init(CURL_GLOBAL_ALL);
 
     curl_handle = curl_easy_init();
-    curl_easy_setopt(curl_handle, CURLOPT_URL, f);
+    if(f != NULL)
+        curl_easy_setopt(curl_handle, CURLOPT_URL, f);
     curl_easy_setopt(curl_handle, CURLOPT_WRITEFUNCTION, WriteMemoryCallback);
     curl_easy_setopt(curl_handle, CURLOPT_WRITEDATA, (void *)&chunk);
     curl_easy_setopt(curl_handle, CURLOPT_USERAGENT, "libcurl-agent/1.0");
@@ -203,7 +210,8 @@ static void
                             {
                                 item = gtk_menu_item_new_with_label((const gchar *)title);
                             }
-                            gtk_menu_append(submenu, item);
+                            if(submenu != NULL)
+                                gtk_menu_append(submenu, item);
                             xmlFree(title);
                         }
                         if ((!xmlStrcmp(child_details->name, (const xmlChar *)"link")))
@@ -241,12 +249,13 @@ loadconfig()
             {
                 while(feeds != NULL)
                 {
-                    gtk_widget_destroy(feeds->submenu);
+                    if(feeds->submenu != NULL)
+                        gtk_widget_destroy(feeds->submenu);
                     feeds = feeds->next;
                 }
             }
 
-        gtk_widget_destroy(main_menu);
+            gtk_widget_destroy(main_menu);
         }
 
         main_menu = gtk_menu_new();
