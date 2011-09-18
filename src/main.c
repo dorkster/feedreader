@@ -134,7 +134,7 @@ static void
 
     struct MemoryStruct chunk;
 
-    chunk.memory = malloc(1);
+    chunk.memory = malloc(sizeof(chunk));
     chunk.size = 0;
 
     curl_global_init(CURL_GLOBAL_ALL);
