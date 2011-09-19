@@ -18,6 +18,7 @@
 
 #include <stdio.h>
 #include <string.h>
+#include <sys/stat.h>
 #include <glib.h>
 #include <gtk/gtk.h>
 #include <libxml/tree.h>
@@ -33,11 +34,15 @@
 
 pthread_mutex_t mutex;
 
+char *homedir;
+
+int feedcount = 0;
+
 static GtkWidget *main_menu = NULL;
 static GtkWidget *alt_menu = NULL;
 static GtkStatusIcon *status_icon = NULL;
 
-static size_t WriteMemoryCallback(void *ptr, size_t size, size_t nmemb, void *data);
+size_t writecurlfile(void *ptr, size_t size, size_t nmemb, FILE *stream);
 static void add_FeedList(char *name, char *uri);
 static void open_link(gpointer data);
 static void *parsefeed(void *arg);
@@ -46,32 +51,9 @@ static void destroy(GtkWidget *widget, gpointer data);
 static void primary_menu (GtkStatusIcon *status_icon, gpointer user_data);
 static void alternate_menu(GtkStatusIcon *status_icon, guint button, guint activate_time, gpointer user_data);
 
-struct MemoryStruct {
-  char *memory;
-  size_t size;
-};
-
-static size_t
-WriteMemoryCallback(void *ptr, size_t size, size_t nmemb, void *data)
-{
-    size_t realsize = size * nmemb;
-    struct MemoryStruct *mem = (struct MemoryStruct *)data;
-
-    mem->memory = realloc(mem->memory, mem->size + realsize + 1);
-    if (mem->memory == NULL) {
-        printf("not enough memory (realloc returned NULL)\n");
-        exit(EXIT_FAILURE);
-    }
-
-    memcpy(&(mem->memory[mem->size]), ptr, realsize);
-    mem->size += realsize;
-    mem->memory[mem->size] = 0;
-
-    return realsize;
-}
-
 typedef struct FeedList
 {
+    int id;
     char *name;
     char *uri;
     GtkWidget *submenu;
@@ -88,6 +70,8 @@ add_FeedList(char *name, char *uri)
     temp = (FeedList *)malloc(sizeof(FeedList));
     temp->name = name;
     temp->uri = uri;
+    temp->id = feedcount;
+    feedcount++;
     temp->submenu = gtk_menu_new();
     
     if(feeds == NULL)
@@ -100,6 +84,11 @@ add_FeedList(char *name, char *uri)
         temp->next = feeds;
         feeds = temp;
     }
+}
+
+size_t writecurlfile(void *ptr, size_t size, size_t nmemb, FILE *stream)
+{
+    return fwrite(ptr, size, nmemb, stream);
 }
 
 static void
@@ -120,44 +109,55 @@ static void
     FeedList *list = (FeedList*)arg;
     gchar *f = NULL;
     GtkWidget *submenu = NULL;
+    int id = 0;
     
     if(list != NULL)
     {
         f = list->uri;
         submenu = list->submenu;
+        id = list->id;
     }
     
     xmlDocPtr file = NULL;
     xmlNodePtr node;
     
     CURL *curl_handle;
-
-    struct MemoryStruct chunk;
-
-    chunk.memory = malloc(1);
-    chunk.size = 0;
-
+    
+    FILE *outfile;
+    struct stat filetmpstat;
+    char filename[BUFSIZ];
+    char filenametmp[BUFSIZ];
+    
+    system(g_strconcat("mkdir -p ",homedir,"/.config/feedreader",NULL));
+    sprintf(filename,"%s/.config/feedreader/%d",homedir,id);
+    sprintf(filenametmp,"%s.tmp",filename);
+    
     curl_global_init(CURL_GLOBAL_ALL);
-
+    outfile = fopen(filenametmp, "w+");
     curl_handle = curl_easy_init();
     if(f != NULL)
         curl_easy_setopt(curl_handle, CURLOPT_URL, f);
-    curl_easy_setopt(curl_handle, CURLOPT_WRITEFUNCTION, WriteMemoryCallback);
-    curl_easy_setopt(curl_handle, CURLOPT_WRITEDATA, (void *)&chunk);
+    curl_easy_setopt(curl_handle, CURLOPT_WRITEDATA, outfile);
+    curl_easy_setopt(curl_handle, CURLOPT_WRITEFUNCTION, writecurlfile);
     curl_easy_setopt(curl_handle, CURLOPT_USERAGENT, "libcurl-agent/1.0");
     curl_easy_setopt(curl_handle, CURLOPT_TIMEOUT, NETTIMEOUT);
 
     curl_easy_perform(curl_handle);
+    fclose(outfile);
     curl_easy_cleanup(curl_handle);
-
-    if(chunk.memory)
-    {
-        file = xmlParseMemory(chunk.memory,chunk.size);
-        free(chunk.memory);
-    }
     
     curl_global_cleanup();
-
+    
+    if (stat(filenametmp, &filetmpstat) != -1)
+    {
+        if(filetmpstat.st_size > 0)
+            system(g_strconcat("mv ",filenametmp," ",filename,NULL));
+        else
+            system(g_strconcat("rm ",filenametmp,NULL));
+    }
+    
+    file = xmlParseFile(filename);
+    
     if (file == NULL )
     {
         fprintf(stderr,"Document not parsed successfully. \n");
@@ -169,7 +169,7 @@ static void
     if (node == NULL)
     {
         fprintf(stderr,"empty document\n");
-        xmlFreeDoc(file);
+        //~ xmlFreeDoc(file);
         return NULL;
     }
 
@@ -233,7 +233,7 @@ static void
     
     xmlFreeDoc(file);
     xmlFreeNode(node);
-
+    
     pthread_mutex_unlock(&mutex);
     return 0;
 }
@@ -241,6 +241,8 @@ static void
 static gboolean
 loadconfig()
 {
+    feedcount = 0;
+    
     if(main_menu == NULL || !gtk_widget_get_visible(main_menu))
     {
         if(main_menu != NULL)
@@ -263,7 +265,6 @@ loadconfig()
         feeds = NULL;
         
         FILE *config;
-        char *homedir = getenv("HOME");
         char *name;
         char *url;
         char buffer[BUFSIZ];
@@ -323,15 +324,16 @@ loadconfig()
             gtk_menu_prepend(main_menu, item);
             feedlist = feedlist->next;
         }
-        
-        free(feedlist);
-        
+                
         GtkWidget *sep = gtk_separator_menu_item_new();
         item = gtk_image_menu_item_new_with_label("Reload Feeds");
         gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(item),gtk_image_new_from_stock(GTK_STOCK_REFRESH, GTK_ICON_SIZE_MENU));
         g_signal_connect (G_OBJECT(item), "activate", G_CALLBACK(loadconfig), NULL);
         gtk_menu_append(main_menu, sep);
         gtk_menu_append(main_menu, item);
+        
+        if(feedlist)
+            free(feedlist);
     }
     return TRUE;
 }
@@ -372,6 +374,9 @@ int main( int argc, char* argv[] )
 {
     gtk_init( &argc, &argv );
     pthread_mutex_init(&mutex,NULL);
+    
+    // Get the user's home directory
+    homedir = getenv("HOME");
     
     // Set the status icon and make it visible
     status_icon = gtk_status_icon_new_from_pixbuf(gdk_pixbuf_new_from_inline(-1,icon,FALSE,NULL));
