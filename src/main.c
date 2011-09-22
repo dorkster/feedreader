@@ -95,10 +95,13 @@ static void
 open_link(gpointer data)
 {
     gchar *link = gtk_widget_get_tooltip_text(data);
-    gchar *command = g_strconcat(BROWSER," \"",link,"\" &",NULL);
-    g_print("%s\n",command);
-    system(command);
-    g_free(command);
+    if(link != NULL)
+    {
+        gchar *command = g_strconcat(BROWSER," \"",link,"\" &",NULL);
+        g_print("%s\n",command);
+        system(command);
+        g_free(command);
+    }
 }
 
 static void
@@ -165,23 +168,11 @@ static void
     }
     
     node = xmlDocGetRootElement(file);
-
-    if (node == NULL)
-    {
-        fprintf(stderr,"empty document\n");
-        //~ xmlFreeDoc(file);
-        return NULL;
-    }
-
-    if (xmlStrcmp(node->name, (const xmlChar *) "rss"))
-    {
-        fprintf(stderr,"document of the wrong type, root node != rss");
-        xmlFreeDoc(file);
-        return NULL;
-    }
     
     static GtkWidget *item;
-    node = node->xmlChildrenNode;
+    
+    if(node != NULL)
+        node = node->xmlChildrenNode;
     
     while (node != NULL)
     {
@@ -212,14 +203,16 @@ static void
                             }
                             if(submenu != NULL)
                                 gtk_menu_append(submenu, item);
-                            xmlFree(title);
+                            if(title != NULL)
+                                xmlFree(title);
                         }
                         if ((!xmlStrcmp(child_details->name, (const xmlChar *)"link")))
                         {
                             link = xmlNodeListGetString(file, child_details->xmlChildrenNode, 1);
                             gtk_widget_set_tooltip_text(item,(const gchar *)link);
                             g_signal_connect(G_OBJECT(item),"activate",G_CALLBACK(open_link),NULL);
-                            xmlFree(link);
+                            if(link != NULL)
+                                xmlFree(link);
                         }
 
                         child_details = child_details->next;
@@ -231,8 +224,10 @@ static void
         node = node->next;
     }
     
-    xmlFreeDoc(file);
-    xmlFreeNode(node);
+    if(file != NULL)
+        xmlFreeDoc(file);
+    if(node != NULL)
+        xmlFreeNode(node);
     
     pthread_mutex_unlock(&mutex);
     return 0;
@@ -306,7 +301,8 @@ loadconfig()
                 markup = g_markup_printf_escaped ("<b>%s</b>", feedlist->name);
                 gtk_label_set_markup ((GtkLabel *)label, markup);
                 
-                g_free (markup);
+                if(markup != NULL)
+                    g_free (markup);
                 gtk_widget_set_sensitive(item,FALSE);
             }
             else
@@ -332,7 +328,7 @@ loadconfig()
         gtk_menu_append(main_menu, sep);
         gtk_menu_append(main_menu, item);
         
-        if(feedlist)
+        if(feedlist != NULL)
             free(feedlist);
     }
     return TRUE;
