@@ -169,6 +169,23 @@ static void
     
     node = xmlDocGetRootElement(file);
     
+    if (node == NULL)
+    {
+        fprintf(stderr,"Empty document. \n");
+        if(file != NULL)
+            xmlFreeDoc(file);
+        return NULL;
+    }
+    else if ((xmlStrcmp(node->name, (const xmlChar *)"rss")))
+    {
+        fprintf(stderr,"Root node is not 'rss'. \n");
+        if(file != NULL)
+            xmlFreeDoc(file);
+        if(node != NULL)
+            xmlFreeNode(node);
+        return NULL;
+    }
+    
     static GtkWidget *item;
     
     if(node != NULL)
