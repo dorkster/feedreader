@@ -33,5 +33,11 @@ build/util.o : src/util.c src/util.h
 build/main.o : src/main.c src/gui.h src/util.h
 	$(CC) src/main.c -c $(CFLAGS) -o $@
 
+install:
+	cp $(EXECUTABLE) /usr/bin/$(EXECUTABLE)
+
+uninstall:
+	rm -f /usr/bin/$(EXECUTABLE)
+
 clean:
 	rm -rf build/ $(EXECUTABLE)
