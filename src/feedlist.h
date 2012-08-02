@@ -18,8 +18,8 @@ typedef struct FeedList {
 int feedcount;
 FeedList *feeds;
 
-void add_feed(FeedList *list, char *name, char *uri);
-void add_article(ArticleList *list, char *name, char *uri);
+void add_feed(FeedList **list, char *name, char *uri);
+void add_article(ArticleList **list, char *name, char *uri);
 void loadconfig();
 
 #endif

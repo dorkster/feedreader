@@ -6,7 +6,7 @@
 #include "feedlist.h"
 #include "util.h"
 
-void add_feed(FeedList *list, char *name, char *uri) {
+void add_feed(FeedList **list, char *name, char *uri) {
     FeedList *temp;
     
     temp = (FeedList *)malloc(sizeof(FeedList));
@@ -16,15 +16,15 @@ void add_feed(FeedList *list, char *name, char *uri) {
     feedcount++;
     
     if(list == NULL) {
-        list = temp;
-        list->next = NULL;
+        *list = temp;
+        /* list->next = NULL; */
     } else {
-        temp->next = list;
-        list = temp;
+        temp->next = *list;
+        *list = temp;
     }
 }
 
-void add_article(ArticleList *list, char *name, char *uri) {
+void add_article(ArticleList **list, char *name, char *uri) {
     ArticleList *temp;
     
     temp = (ArticleList *)malloc(sizeof(ArticleList));
@@ -32,11 +32,11 @@ void add_article(ArticleList *list, char *name, char *uri) {
     temp->uri = g_strdup(uri);
     
     if(list == NULL) {
-        list = temp;
-        list->next = NULL;
+        *list = temp;
+        /* list->next = NULL; */
     } else {
-        temp->next = list;
-        list = temp;
+        temp->next = *list;
+        *list = temp;
     }
 }
 
@@ -61,7 +61,7 @@ void loadconfig() {
             url=strtok(NULL,"\n");
             
             if(url !=  NULL) {
-                add_feed(feeds,name,url);
+                add_feed(&feeds,name,url);
             }
         }
 

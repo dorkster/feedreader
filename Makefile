@@ -1,7 +1,7 @@
 PROJNAME=feedreader
 
 CC=gcc
-CFLAGS+=-Wall -O2 -mms-bitfields -std=c99
+CFLAGS+=-g -Wall -O2 -mms-bitfields -std=c99
 CFLAGS+=`pkg-config --cflags gtk+-2.0` `xml2-config --cflags` `curl-config --cflags`
 LDFLAGS+=`pkg-config --libs gtk+-2.0` `xml2-config --libs` `curl-config --libs`
 OBJECTS=build/download.o build/feedlist.o build/gui.o build/parse.o build/util.o build/main.o

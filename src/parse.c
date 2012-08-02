@@ -70,9 +70,9 @@ void parsefeed(FeedList *_list) {
                         }
 
                         if (title != NULL && link != NULL) {
-                            add_article(list->articles,(char*)title,(char*)link);
-                            xmlFree(title);
-                            xmlFree(link);
+                            add_article(&list->articles,(char*)title,(char*)link);
+                            /* xmlFree(title); */
+                            /* xmlFree(link); */
                         }
 
                         child_details = child_details->next;
