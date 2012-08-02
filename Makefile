@@ -1,39 +1,37 @@
 PROJNAME=feedreader
-ifdef NOGTK
-SOURCES=src/main.c
-CFLAGS=-DNOGTK
-GTKCFLAGS=`pkg-config --cflags glib-2.0` `xml2-config --cflags` `curl-config --cflags`
-GTKLDFLAGS=`pkg-config --libs glib-2.0` `xml2-config --libs` `curl-config --libs` -lpthread
-else
-SOURCES=src/main.c
-GTKCFLAGS=`pkg-config --cflags gtk+-2.0` `xml2-config --cflags` `curl-config --cflags`
-GTKLDFLAGS=`pkg-config --libs gtk+-2.0` `xml2-config --libs` `curl-config --libs` -lpthread
-endif
-ifndef DESTDIR
-DESTDIR=/usr/local/bin
-endif
 
 CC=gcc
-CFLAGS+=$(GTKCFLAGS)
-LDFLAGS+=$(GTKLDFLAGS) 
-OBJECTS=$(SOURCES:.c=.o)
-EXECUTABLE=bin/$(PROJNAME)
+CFLAGS+=-g -Wall -O2 -mms-bitfields -std=c99
+CFLAGS+=`pkg-config --cflags gtk+-2.0` `xml2-config --cflags` `curl-config --cflags`
+LDFLAGS+=`pkg-config --libs gtk+-2.0` `xml2-config --libs` `curl-config --libs`
+OBJECTS=build/download.o build/feedlist.o build/gui.o build/parse.o build/util.o build/main.o
+EXECUTABLE=$(PROJNAME)
 
-all: $(SOURCES) $(EXECUTABLE)
+all: build $(OBJECTS) $(EXECUTABLE)
+
+build:
+	mkdir -p build
 
 $(EXECUTABLE): $(OBJECTS)
-	mkdir -p bin
 	$(CC) $(OBJECTS) $(LDFLAGS) -Wall -O2 -mms-bitfields -std=c99 -o $@
 
-.c.o:
-	$(CC) $< $ $(CFLAGS) -c -Wall -O2 -mms-bitfields -std=c99 -o $@
+build/download.o : src/download.c src/download.h
+	$(CC) src/download.c -c $(CFLAGS) -o $@
 
-install:
-	cp $(EXECUTABLE) $(DESTDIR)
-	chmod 755 $(DESTDIR)/$(PROJNAME)
+build/feedlist.o : src/feedlist.c src/feedlist.h src/util.h
+	$(CC) src/feedlist.c -c $(CFLAGS) -o $@
 
-uninstall:
-	rm -i $(DESTDIR)/$(PROJNAME)
+build/gui.o : src/gui.c src/download.h src/feedlist.h src/gui.h src/parse.h
+	$(CC) src/gui.c -c $(CFLAGS) -o $@
+
+build/parse.o : src/parse.c src/parse.h src/feedlist.h src/util.h
+	$(CC) src/parse.c -c $(CFLAGS) -o $@
+
+build/util.o : src/util.c src/util.h
+	$(CC) src/util.c -c $(CFLAGS) -o $@
+
+build/main.o : src/main.c src/gui.h src/util.h
+	$(CC) src/main.c -c $(CFLAGS) -o $@
 
 clean:
-	rm -f $(OBJECTS) $(EXECUTABLE)
+	rm -rf build/ $(EXECUTABLE)
