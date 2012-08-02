@@ -45,6 +45,9 @@ int main( int argc, char* argv[] ) {
     create_primary_menu();
     
     gtk_main();
+
+    // Remove temporary files on exit
+    clean_up();
     
     return 0;
 }

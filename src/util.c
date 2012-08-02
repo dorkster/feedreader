@@ -13,3 +13,7 @@ void open_link(gpointer data) {
     }
 }
 
+void clean_up() {
+    system("rm -rf /tmp/feedreader/");
+}
+
