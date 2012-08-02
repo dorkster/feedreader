@@ -47,15 +47,19 @@ void parsefeed(FeedList *_list) {
     
     if(node != NULL) node = node->xmlChildrenNode;
     
+    xmlChar *title;
+    xmlChar *link;
+    xmlNodePtr child_item;
+    xmlNodePtr child_details;
+
     while (node != NULL) {
         if ((!xmlStrcmp(node->name, (const xmlChar *)"channel"))) {
-            xmlNodePtr child_item = node->xmlChildrenNode;
+            child_item = node->xmlChildrenNode;
             while (child_item != NULL) {
                 if ((!xmlStrcmp(child_item->name, (const xmlChar *)"item"))) {
-                    xmlChar *title;
-                    xmlChar *link;
-                    xmlNodePtr child_details = child_item->xmlChildrenNode;
+                    child_details = child_item->xmlChildrenNode;
                     while (child_details != NULL) {
+                        // article title
                         if ((!xmlStrcmp(child_details->name, (const xmlChar *)"title"))) {
                             title = xmlNodeListGetString(file, child_details->xmlChildrenNode, 1);
                             if(strlen((char *)title) > MAXLABELSIZE) {
@@ -68,6 +72,7 @@ void parsefeed(FeedList *_list) {
                             if(submenu != NULL) gtk_menu_append(submenu, item);
                             if(title != NULL) xmlFree(title);
                         }
+                        // article link
                         if ((!xmlStrcmp(child_details->name, (const xmlChar *)"link"))) {
                             link = xmlNodeListGetString(file, child_details->xmlChildrenNode, 1);
                             gtk_widget_set_tooltip_text(item,(const gchar *)link);
@@ -86,5 +91,7 @@ void parsefeed(FeedList *_list) {
     
     if(file != NULL) xmlFreeDoc(file);
     if(node != NULL) xmlFreeNode(node);
+    if (child_details != NULL) xmlFreeNode(child_details);
+    if (child_item != NULL) xmlFreeNode(child_item);
 }
 

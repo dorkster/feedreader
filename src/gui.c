@@ -18,22 +18,20 @@ gboolean create_primary_menu() {
 
         GtkWidget *item;
         
-        FeedList *feedlist = feeds;
-        
-        while(feedlist != NULL) {
-            item = gtk_menu_item_new_with_label(feedlist->name);
+        while(feeds != NULL) {
+            item = gtk_menu_item_new_with_label(feeds->name);
             gtk_menu_item_set_submenu(GTK_MENU_ITEM(item), NULL);
  
-            gtk_widget_set_tooltip_text(item,(const gchar *)feedlist->uri);
+            gtk_widget_set_tooltip_text(item,(const gchar *)feeds->uri);
             gtk_widget_set_has_tooltip(item,FALSE);
 
-            download(feedlist->id,feedlist->uri);
-            parsefeed(feedlist);
+            download(feeds->id,feeds->uri);
+            parsefeed(feeds);
 
-            gtk_menu_item_set_submenu(GTK_MENU_ITEM(item), feedlist->submenu);
+            gtk_menu_item_set_submenu(GTK_MENU_ITEM(item), feeds->submenu);
 
             gtk_menu_prepend(main_menu, item);
-            feedlist = feedlist->next;
+            feeds = feeds->next;
         }
                 
         GtkWidget *sep = gtk_separator_menu_item_new();
@@ -43,8 +41,6 @@ gboolean create_primary_menu() {
         gtk_menu_append(main_menu, sep);
         gtk_menu_append(main_menu, item);
         
-        if(feedlist != NULL)
-            free(feedlist);
     }
     return TRUE;
 }

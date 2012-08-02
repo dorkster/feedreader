@@ -21,8 +21,6 @@
 #include "gui.h"
 #include "util.h"
 
-#define UPDATE_INTERVAL 300 // in seconds
-
 int main( int argc, char* argv[] ) {
     gtk_init( &argc, &argv );
     

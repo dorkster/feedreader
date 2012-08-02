@@ -4,6 +4,7 @@
 #include <glib.h>
 
 #define BROWSER "xdg-open"
+#define UPDATE_INTERVAL 300 // in seconds
 
 char *homedir;
 
