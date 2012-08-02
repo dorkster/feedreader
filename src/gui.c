@@ -28,7 +28,8 @@ gboolean create_primary_menu() {
             download(feeds->id,feeds->uri);
             parsefeed(feeds);
 
-            gtk_menu_item_set_submenu(GTK_MENU_ITEM(item), feeds->submenu);
+            /* gtk_menu_item_set_submenu(GTK_MENU_ITEM(item), feeds->submenu); */
+            printf("%d\n",feeds->id);
 
             gtk_menu_prepend(main_menu, item);
             feeds = feeds->next;

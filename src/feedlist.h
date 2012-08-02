@@ -1,20 +1,25 @@
 #ifndef FEEDLIST_H
 #define FEEDLIST_H
 
-#include <gtk/gtk.h>
+typedef struct ArticleList {
+    char *name;
+    char *uri;
+    struct ArticleList *next;
+}ArticleList;
 
 typedef struct FeedList {
     int id;
     char *name;
     char *uri;
-    GtkWidget *submenu;
+    ArticleList *articles;
     struct FeedList *next;
 }FeedList;
 
 int feedcount;
 FeedList *feeds;
 
-void add_FeedList(char *name, char *uri);
+void add_feed(FeedList *list, char *name, char *uri);
+void add_article(ArticleList *list, char *name, char *uri);
 void loadconfig();
 
 #endif

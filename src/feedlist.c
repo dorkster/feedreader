@@ -1,3 +1,4 @@
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <glib.h>
@@ -5,22 +6,37 @@
 #include "feedlist.h"
 #include "util.h"
 
-void add_FeedList(char *name, char *uri) {
+void add_feed(FeedList *list, char *name, char *uri) {
     FeedList *temp;
     
     temp = (FeedList *)malloc(sizeof(FeedList));
-    temp->name = name;
-    temp->uri = uri;
+    temp->name = g_strdup(name);
+    temp->uri = g_strdup(uri);
     temp->id = feedcount;
     feedcount++;
-    temp->submenu = gtk_menu_new();
     
-    if(feeds == NULL) {
-        feeds = temp;
-        feeds->next = NULL;
+    if(list == NULL) {
+        list = temp;
+        list->next = NULL;
     } else {
-        temp->next = feeds;
-        feeds = temp;
+        temp->next = list;
+        list = temp;
+    }
+}
+
+void add_article(ArticleList *list, char *name, char *uri) {
+    ArticleList *temp;
+    
+    temp = (ArticleList *)malloc(sizeof(ArticleList));
+    temp->name = g_strdup(name);
+    temp->uri = g_strdup(uri);
+    
+    if(list == NULL) {
+        list = temp;
+        list->next = NULL;
+    } else {
+        temp->next = list;
+        list = temp;
     }
 }
 
@@ -45,7 +61,7 @@ void loadconfig() {
             url=strtok(NULL,"\n");
             
             if(url !=  NULL) {
-                add_FeedList(g_strdup(name),g_strdup(url));
+                add_feed(feeds,name,url);
             }
         }
 

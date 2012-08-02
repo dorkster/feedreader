@@ -10,11 +10,9 @@
 
 void parsefeed(FeedList *_list) {
     FeedList *list = _list;
-    GtkWidget *submenu = NULL;
     int id = 0;
     
     if(list != NULL) {
-        submenu = list->submenu;
         id = list->id;
     }
     
@@ -43,12 +41,10 @@ void parsefeed(FeedList *_list) {
         return;
     }
     
-    static GtkWidget *item;
-    
     if(node != NULL) node = node->xmlChildrenNode;
     
-    xmlChar *title;
-    xmlChar *link;
+    xmlChar *title = NULL;
+    xmlChar *link = NULL;
     xmlNodePtr child_item;
     xmlNodePtr child_details;
 
@@ -64,20 +60,19 @@ void parsefeed(FeedList *_list) {
                             title = xmlNodeListGetString(file, child_details->xmlChildrenNode, 1);
                             if(strlen((char *)title) > MAXLABELSIZE) {
                                 gchar *newtitle = g_strndup((const gchar *)title,MAXLABELSIZE);
-                                item = gtk_menu_item_new_with_label(g_strconcat(newtitle,"...",NULL));
+                                title = (xmlChar*)g_strdup(g_strconcat(newtitle,"...",NULL));
                                 g_free(newtitle);
-                            } else {
-                                item = gtk_menu_item_new_with_label((const gchar *)title);
                             }
-                            if(submenu != NULL) gtk_menu_append(submenu, item);
-                            if(title != NULL) xmlFree(title);
                         }
                         // article link
                         if ((!xmlStrcmp(child_details->name, (const xmlChar *)"link"))) {
                             link = xmlNodeListGetString(file, child_details->xmlChildrenNode, 1);
-                            gtk_widget_set_tooltip_text(item,(const gchar *)link);
-                            g_signal_connect(G_OBJECT(item),"activate",G_CALLBACK(open_link),NULL);
-                            if(link != NULL) xmlFree(link);
+                        }
+
+                        if (title != NULL && link != NULL) {
+                            add_article(list->articles,(char*)title,(char*)link);
+                            xmlFree(title);
+                            xmlFree(link);
                         }
 
                         child_details = child_details->next;
@@ -93,5 +88,7 @@ void parsefeed(FeedList *_list) {
     if(node != NULL) xmlFreeNode(node);
     if (child_details != NULL) xmlFreeNode(child_details);
     if (child_item != NULL) xmlFreeNode(child_item);
+    if (title != NULL) xmlFree(title);
+    if (link != NULL) xmlFree(link);
 }
 
