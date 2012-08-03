@@ -12,12 +12,13 @@ void add_feed(FeedList **list, char *name, char *uri) {
     temp = (FeedList *)malloc(sizeof(FeedList));
     temp->name = g_strdup(name);
     temp->uri = g_strdup(uri);
+    temp->articles = NULL;
     temp->id = feedcount;
     feedcount++;
     
-    if(list == NULL) {
+    if(*list == NULL) {
         *list = temp;
-        /* list->next = NULL; */
+        (**list).next = NULL;
     } else {
         temp->next = *list;
         *list = temp;
@@ -31,9 +32,9 @@ void add_article(ArticleList **list, char *name, char *uri) {
     temp->name = g_strdup(name);
     temp->uri = g_strdup(uri);
     
-    if(list == NULL) {
+    if(*list == NULL) {
         *list = temp;
-        /* list->next = NULL; */
+        (**list).next = NULL;
     } else {
         temp->next = *list;
         *list = temp;

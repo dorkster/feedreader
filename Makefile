@@ -21,7 +21,7 @@ build/download.o : src/download.c src/download.h
 build/feedlist.o : src/feedlist.c src/feedlist.h src/util.h
 	$(CC) src/feedlist.c -c $(CFLAGS) -o $@
 
-build/gui.o : src/gui.c src/download.h src/feedlist.h src/gui.h src/parse.h
+build/gui.o : src/gui.c src/download.h src/feedlist.h src/gui.h src/parse.h src/util.h
 	$(CC) src/gui.c -c $(CFLAGS) -o $@
 
 build/parse.o : src/parse.c src/parse.h src/feedlist.h src/util.h

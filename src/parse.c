@@ -1,5 +1,4 @@
 #include <glib.h>
-#include <gtk/gtk.h>
 #include <libxml/tree.h>
 #include <libxml/parser.h>
 #include <string.h>
@@ -17,7 +16,7 @@ void parsefeed(FeedList *_list) {
     }
     
     xmlDocPtr file = NULL;
-    xmlNodePtr node;
+    xmlNodePtr node = NULL;
 
     char filename[BUFSIZ];
     sprintf(filename,"/tmp/feedreader/%d",id);
@@ -71,8 +70,8 @@ void parsefeed(FeedList *_list) {
 
                         if (title != NULL && link != NULL) {
                             add_article(&list->articles,(char*)title,(char*)link);
-                            /* xmlFree(title); */
-                            /* xmlFree(link); */
+                            title = NULL;
+                            link = NULL;
                         }
 
                         child_details = child_details->next;
@@ -86,9 +85,5 @@ void parsefeed(FeedList *_list) {
     
     if(file != NULL) xmlFreeDoc(file);
     if(node != NULL) xmlFreeNode(node);
-    if (child_details != NULL) xmlFreeNode(child_details);
-    if (child_item != NULL) xmlFreeNode(child_item);
-    if (title != NULL) xmlFree(title);
-    if (link != NULL) xmlFree(link);
 }
 

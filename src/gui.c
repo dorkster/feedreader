@@ -4,6 +4,7 @@
 #include "feedlist.h"
 #include "gui.h"
 #include "parse.h"
+#include "util.h"
 
 gboolean create_primary_menu() {
 
@@ -17,6 +18,8 @@ gboolean create_primary_menu() {
         loadconfig();
 
         GtkWidget *item;
+        GtkWidget *submenu;
+        GtkWidget *submenu_item;
         
         while(feeds != NULL) {
             item = gtk_menu_item_new_with_label(feeds->name);
@@ -28,8 +31,16 @@ gboolean create_primary_menu() {
             download(feeds->id,feeds->uri);
             parsefeed(feeds);
 
-            /* gtk_menu_item_set_submenu(GTK_MENU_ITEM(item), feeds->submenu); */
-            printf("%d\n",feeds->id);
+            submenu = gtk_menu_new();
+            while (feeds->articles != NULL) {
+                submenu_item = gtk_menu_item_new_with_label(feeds->articles->name);
+                gtk_widget_set_tooltip_text(submenu_item,feeds->articles->uri);
+                g_signal_connect(G_OBJECT(submenu_item),"activate",G_CALLBACK(open_link),NULL);
+                gtk_menu_prepend(submenu,submenu_item);
+                feeds->articles = feeds->articles->next;
+            }
+
+            gtk_menu_item_set_submenu(GTK_MENU_ITEM(item), submenu);
 
             gtk_menu_prepend(main_menu, item);
             feeds = feeds->next;

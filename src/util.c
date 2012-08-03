@@ -10,6 +10,7 @@ void open_link(gpointer data) {
         g_print("%s\n",command);
         system(command);
         g_free(command);
+        g_free(link);
     }
 }
 
