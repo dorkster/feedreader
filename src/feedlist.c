@@ -60,7 +60,17 @@ void add_article(ArticleList **list, char *name, char *uri) {
 }
 
 void loadconfig() {
-    if (feeds != NULL) feeds = NULL;
+    // Clear the feeds list frist
+    while (feeds != NULL) {
+        free(feeds->name);
+        free(feeds->uri);
+        while (feeds->articles != NULL) {
+            free(feeds->articles->name);
+            free(feeds->articles->uri);
+            feeds->articles = feeds->articles->next;
+        }
+        feeds = feeds->next;
+    }
 
     feedcount = 0;
 
