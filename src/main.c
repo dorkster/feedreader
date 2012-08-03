@@ -1,6 +1,6 @@
 /*
-    RSS Feed Reader
-    Copyright (C) 2011  Justin Jacobs
+    feedreader
+    Copyright (C) 2011-2012  Justin Jacobs
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
