@@ -15,7 +15,7 @@ build:
 $(EXECUTABLE): $(OBJECTS)
 	$(CC) $(OBJECTS) $(LDFLAGS) -Wall -O2 -mms-bitfields -std=c99 -o $@
 
-build/download.o : src/download.c src/download.h
+build/download.o : src/download.c src/download.h src/util.h
 	$(CC) src/download.c -c $(CFLAGS) -o $@
 
 build/feedlist.o : src/feedlist.c src/feedlist.h src/util.h

@@ -20,6 +20,7 @@
 #include <stdlib.h>
 
 #include "download.h"
+#include "util.h"
 
 size_t writecurlfile(void *ptr, size_t size, size_t nmemb, FILE *stream) {
     return fwrite(ptr, size, nmemb, stream);
@@ -31,8 +32,7 @@ void download (int id, char *uri) {
     FILE *outfile;
     char filename[BUFSIZ];
     
-    system("mkdir -p /tmp/feedreader/");
-    sprintf(filename,"/tmp/feedreader/%d",id);
+    sprintf(filename,"%s/%d",TEMP_DIR,id);
     
     curl_global_init(CURL_GLOBAL_ALL);
     outfile = fopen(filename, "w+");

@@ -24,9 +24,11 @@
 #define BROWSER "xdg-open"
 #define UPDATE_INTERVAL 600 // in seconds
 
-char *homedir;
+char *USER_DIR;
+char *TEMP_DIR;
 
 void open_link(gpointer data);
+void create_dirs();
 void clean_up();
 
 #endif

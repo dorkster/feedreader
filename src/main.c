@@ -24,8 +24,8 @@
 int main( int argc, char* argv[] ) {
     gtk_init( &argc, &argv );
     
-    // Get the user's home directory
-    homedir = getenv("HOME");
+    // Set up directories
+    create_dirs();
     
     // Set the status icon and make it visible
     GtkIconTheme *icontheme = gtk_icon_theme_get_default();

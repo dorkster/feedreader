@@ -70,8 +70,7 @@ void loadconfig() {
     char buffer[BUFSIZ];
     char *temp;
     
-    system(g_strconcat("mkdir -p ",homedir,"/.config/feedreader",NULL));
-    config = fopen(g_strconcat(homedir,"/.config/feedreader/rssfeeds",NULL),"r+");
+    config = fopen(g_strconcat(USER_DIR,"/rssfeeds",NULL),"r+");
     
     if(config != NULL) {
         while(fgets(buffer,BUFSIZ,config) != NULL) {

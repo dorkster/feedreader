@@ -37,7 +37,7 @@ void parsefeed(FeedList *_list) {
     xmlNodePtr node = NULL;
 
     char filename[BUFSIZ];
-    sprintf(filename,"/tmp/feedreader/%d",id);
+    sprintf(filename,"%s/%d",TEMP_DIR,id);
     file = xmlParseFile(filename);
     
     if (file == NULL ) {
