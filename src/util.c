@@ -38,7 +38,7 @@ void create_dirs() {
     system(g_strconcat("mkdir -p ",USER_DIR,NULL));
 
     // A temp env variable isn't always used across distros, so this will be hard-coded for now
-    TEMP_DIR = "/tmp/feedreader/";
+    TEMP_DIR = g_strconcat("/tmp/feedreader-",getenv("USER"),"/",NULL);
     system(g_strconcat("mkdir -p ",TEMP_DIR,NULL));
 }
 
