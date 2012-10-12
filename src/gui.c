@@ -51,10 +51,12 @@ gboolean create_primary_menu() {
 
             submenu = gtk_menu_new();
             while (feeds->articles != NULL) {
-                submenu_item = gtk_menu_item_new_with_label(feeds->articles->name);
-                gtk_widget_set_tooltip_text(submenu_item,feeds->articles->uri);
-                g_signal_connect(G_OBJECT(submenu_item),"activate",G_CALLBACK(open_link),NULL);
-                gtk_menu_prepend(submenu,submenu_item);
+                if (feeds->articles->id < MAX_ARTICLES) {
+                    submenu_item = gtk_menu_item_new_with_label(feeds->articles->name);
+                    gtk_widget_set_tooltip_text(submenu_item,feeds->articles->uri);
+                    g_signal_connect(G_OBJECT(submenu_item),"activate",G_CALLBACK(open_link),NULL);
+                    gtk_menu_prepend(submenu,submenu_item);
+                }
                 feeds->articles = feeds->articles->next;
             }
 

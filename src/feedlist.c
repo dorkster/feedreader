@@ -49,6 +49,8 @@ void add_article(ArticleList **list, char *name, char *uri) {
     temp = (ArticleList *)malloc(sizeof(ArticleList));
     temp->name = g_strdup(name);
     temp->uri = g_strdup(uri);
+    temp->id = articlecount;
+    articlecount++;
     
     if(*list == NULL) {
         *list = temp;

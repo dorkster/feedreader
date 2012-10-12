@@ -28,6 +28,7 @@
 void parsefeed(FeedList *_list) {
     FeedList *list = _list;
     int id = 0;
+    articlecount = 0;
     
     if(list != NULL) {
         id = list->id;

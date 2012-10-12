@@ -23,6 +23,7 @@
 
 #define BROWSER "xdg-open"
 #define UPDATE_INTERVAL 600 // in seconds
+#define MAX_ARTICLES 10
 
 char *USER_DIR;
 char *TEMP_DIR;

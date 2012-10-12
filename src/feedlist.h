@@ -20,6 +20,7 @@
 #define FEEDLIST_H
 
 typedef struct ArticleList {
+    int id;
     char *name;
     char *uri;
     struct ArticleList *next;
@@ -34,6 +35,7 @@ typedef struct FeedList {
 }FeedList;
 
 int feedcount;
+int articlecount;
 FeedList *feeds;
 
 void add_feed(FeedList **list, char *name, char *uri);
