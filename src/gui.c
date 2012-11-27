@@ -24,6 +24,23 @@
 #include "parse.h"
 #include "util.h"
 
+void create_tray_icon() {
+    // Set the status icon and make it visible
+    GtkIconTheme *icontheme = gtk_icon_theme_get_default();
+    status_icon = gtk_status_icon_new_from_pixbuf(gtk_icon_theme_load_icon(icontheme,"feedreader",GTK_ICON_SIZE_SMALL_TOOLBAR,0,NULL));
+    if (!gtk_status_icon_get_pixbuf(status_icon)) gtk_status_icon_set_from_stock(status_icon, GTK_STOCK_EXECUTE);
+    gtk_status_icon_set_visible(status_icon, TRUE);
+
+    gtk_status_icon_set_tooltip(status_icon, "feedreader");
+
+    // Connect tray icon signals
+    g_signal_connect (G_OBJECT (status_icon), "activate", G_CALLBACK (primary_menu), NULL);
+    g_signal_connect (G_OBJECT (status_icon), "popup-menu", G_CALLBACK (alternate_menu), NULL);
+
+    // Add a timer for updating feeds
+    g_timeout_add_seconds(UPDATE_INTERVAL, (GSourceFunc) create_primary_menu, NULL);
+}
+
 gboolean create_primary_menu() {
 
     if(main_menu == NULL || !gtk_widget_get_visible(main_menu)) {

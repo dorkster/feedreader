@@ -24,24 +24,8 @@
 int main( int argc, char* argv[] ) {
     gtk_init( &argc, &argv );
     
-    // Set up directories
     create_dirs();
-    
-    // Set the status icon and make it visible
-    GtkIconTheme *icontheme = gtk_icon_theme_get_default();
-    status_icon = gtk_status_icon_new_from_pixbuf(gtk_icon_theme_load_icon(icontheme,"liferea",16,0,NULL));
-    gtk_status_icon_set_visible(status_icon, TRUE);
-
-    gtk_status_icon_set_tooltip(status_icon, "feedreader");
-    
-    // Connect tray icon signals
-    g_signal_connect (G_OBJECT (status_icon), "activate", G_CALLBACK (primary_menu), NULL);
-    g_signal_connect (G_OBJECT (status_icon), "popup-menu", G_CALLBACK (alternate_menu), NULL);
-    
-    // Add a timer for updating feeds
-    g_timeout_add_seconds(UPDATE_INTERVAL, (GSourceFunc) create_primary_menu, NULL);
-    
-    // Load feeds on startup
+    create_tray_icon();
     create_primary_menu();
     
     gtk_main();

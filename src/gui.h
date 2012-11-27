@@ -26,6 +26,7 @@ GtkWidget *main_menu;
 GtkWidget *alt_menu;
 GtkStatusIcon *status_icon;
 
+void create_tray_icon();
 gboolean create_primary_menu();
 void destroy (GtkWidget *widget, gpointer data);
 void primary_menu (GtkStatusIcon *status_icon, gpointer user_data);
