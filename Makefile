@@ -1,43 +1,42 @@
 PROJNAME=feedreader
+SRCDIR=src
+BUILDDIR=build
+SOURCES=$(shell ls $(SRCDIR)/*.c)
+OBJECTS=$(patsubst $(SRCDIR)%.c,$(BUILDDIR)%.o, $(SOURCES))
 
 CC=gcc
 CFLAGS+=-Wall -O2 -mms-bitfields -std=c99
 CFLAGS+=`pkg-config --cflags gtk+-2.0` `xml2-config --cflags` `curl-config --cflags`
 LDFLAGS+=`pkg-config --libs gtk+-2.0` `xml2-config --libs` `curl-config --libs`
-OBJECTS=build/download.o build/feedlist.o build/gui.o build/parse.o build/util.o build/main.o
-EXECUTABLE=$(PROJNAME)
 
-all: build $(OBJECTS) $(EXECUTABLE)
+all: $(BUILDDIR) $(SOURCES) $(PROJNAME)
 
-build:
-	mkdir -p build
+$(BUILDDIR):
+	mkdir -p $(BUILDDIR)/
 
-$(EXECUTABLE): $(OBJECTS)
-	$(CC) $(OBJECTS) $(LDFLAGS) -Wall -O2 -mms-bitfields -std=c99 -o $@
+depend: .depend
 
-build/download.o : src/download.c src/download.h src/util.h
-	$(CC) src/download.c -c $(CFLAGS) -o $@
+.depend: $(SOURCES)
+	@rm -f ./.depend
+	@$(CC) $(CFLAGS) -MM $^ > ./.depend
+	@sed -i ':x; /\\$$/ { N; s/\\\n//; tx }' ./.depend
+	@sed -i 's/^/$(BUILDDIR)\//' ./.depend
 
-build/feedlist.o : src/feedlist.c src/feedlist.h src/util.h
-	$(CC) src/feedlist.c -c $(CFLAGS) -o $@
+-include .depend
 
-build/gui.o : src/gui.c src/download.h src/feedlist.h src/gui.h src/parse.h src/util.h
-	$(CC) src/gui.c -c $(CFLAGS) -o $@
+$(PROJNAME): $(OBJECTS)
+	$(CC) $(OBJECTS) $(LDFLAGS) $(CFLAGS) -o $@
 
-build/parse.o : src/parse.c src/parse.h src/feedlist.h src/util.h
-	$(CC) src/parse.c -c $(CFLAGS) -o $@
-
-build/util.o : src/util.c src/util.h
-	$(CC) src/util.c -c $(CFLAGS) -o $@
-
-build/main.o : src/main.c src/gui.h src/util.h
-	$(CC) src/main.c -c $(CFLAGS) -o $@
-
-install:
-	cp $(EXECUTABLE) /usr/bin/$(EXECUTABLE)
-
-uninstall:
-	rm -f /usr/bin/$(EXECUTABLE)
+$(BUILDDIR)/%.o:
+	$(CC) $< -c $(CFLAGS) -o $@
 
 clean:
-	rm -rf build/ $(EXECUTABLE)
+	rm -rf $(BUILDDIR)/ $(PROJNAME)
+	@rm ./.depend
+
+install:
+	cp $(PROJNAME) /usr/bin/$(PROJNAME)
+
+uninstall:
+	rm -f /usr/bin/$(PROJNAME)
+
