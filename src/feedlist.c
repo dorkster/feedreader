@@ -87,6 +87,7 @@ void loadconfig() {
     if(config != NULL) {
         while(fgets(buffer,BUFSIZ,config) != NULL) {
             temp = buffer;
+            if (temp[0] == '#') continue;
             name=strtok(temp,"\\");
             url=strtok(NULL,"\n");
             
