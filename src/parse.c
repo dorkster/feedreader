@@ -54,8 +54,8 @@ void parsefeed(FeedList *_list) {
         return;
     } else if ((xmlStrcmp(node->name, (const xmlChar *)"rss"))) {
         fprintf(stderr,"Root node is not 'rss'. \n");
-        if(file != NULL) xmlFreeDoc(file);
         if(node != NULL) xmlFreeNode(node);
+        if(file != NULL) xmlFreeDoc(file);
         return;
     }
     
@@ -102,7 +102,7 @@ void parsefeed(FeedList *_list) {
         node = node->next;
     }
     
-    if(file != NULL) xmlFreeDoc(file);
     if(node != NULL) xmlFreeNode(node);
+    if(file != NULL) xmlFreeDoc(file);
 }
 
