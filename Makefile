@@ -36,7 +36,9 @@ clean:
 
 install:
 	cp $(PROJNAME) /usr/bin/$(PROJNAME)
+	cp feedreader.png /usr/share/pixmaps/feedreader.png
 
 uninstall:
 	rm -f /usr/bin/$(PROJNAME)
+	rm -f /usr/share/pixmaps/feedreader.png
 

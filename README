@@ -14,6 +14,15 @@ To compile feedreader, simply run `make` in the base directory.
 
 
 
+## Copyright & License
+
+feedreader is Copyright © 2011-2012 Justin Jacobs.
+This software is released under the GNU GPL v3. Later versions are permitted.
+
+The included feedreader.png icon was released by Steven Garrity under CC BY-SA.
+
+
+
 ## Usage
 
 Feeds are added via a file called `rssfeeds` in located in the user's `$HOME/.config/feedreader` folder.
