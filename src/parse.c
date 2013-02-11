@@ -25,7 +25,7 @@
 #include "parse.h"
 #include "util.h"
 
-void parsefeed(FeedList *_list) {
+gboolean parsefeed(FeedList *_list) {
     FeedList *list = _list;
     int id = 0;
     articlecount = 0;
@@ -43,7 +43,7 @@ void parsefeed(FeedList *_list) {
     
     if (file == NULL ) {
         fprintf(stderr,"Document not parsed successfully. \n");
-        return;
+        return FALSE;
     }
     
     node = xmlDocGetRootElement(file);
@@ -51,12 +51,12 @@ void parsefeed(FeedList *_list) {
     if (node == NULL) {
        fprintf(stderr,"Empty document. \n");
         if(file != NULL) xmlFreeDoc(file);
-        return;
+        return FALSE;
     } else if ((xmlStrcmp(node->name, (const xmlChar *)"rss"))) {
         fprintf(stderr,"Root node is not 'rss'. \n");
         if(node != NULL) xmlFreeNode(node);
         if(file != NULL) xmlFreeDoc(file);
-        return;
+        return FALSE;
     }
     
     if(node != NULL) node = node->xmlChildrenNode;
@@ -104,5 +104,7 @@ void parsefeed(FeedList *_list) {
     
     if(node != NULL) xmlFreeNode(node);
     if(file != NULL) xmlFreeDoc(file);
+
+    return TRUE;
 }
 

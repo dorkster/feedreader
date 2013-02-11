@@ -23,6 +23,6 @@
 
 #define MAXLABELSIZE 70
 
-void parsefeed(FeedList *_list);
+gboolean parsefeed(FeedList *_list);
 
 #endif
