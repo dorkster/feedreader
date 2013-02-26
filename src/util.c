@@ -34,7 +34,10 @@ void open_link(gpointer data) {
 
 void create_dirs() {
     // rssfeeds will go here
-    USER_DIR = g_strconcat(getenv("XDG_CONFIG_HOME"),"/feedreader/",NULL);
+    if (getenv("XDG_CONFIG_HOME"))
+        USER_DIR = g_strconcat(getenv("XDG_CONFIG_HOME"),"/feedreader/",NULL);
+    else
+        USER_DIR = g_strconcat(getenv("HOME"),"/.config/feedreader/",NULL);
     system(g_strconcat("mkdir -p ",USER_DIR,NULL));
 
     // A temp env variable isn't always used across distros, so this will be hard-coded for now
