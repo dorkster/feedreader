@@ -89,9 +89,10 @@ gboolean parsefeed(FeedList *_list) {
 
                         if (title != NULL && link != NULL) {
                             add_article(&list->articles,(char*)title,(char*)link);
-                            title = NULL;
-                            link = NULL;
                         }
+                        // TODO fix these memory leaks without causing an invalid free
+                        // if (title) xmlFree(title);
+                        // if (link) xmlFree(link);
 
                         child_details = child_details->next;
                     }

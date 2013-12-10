@@ -82,21 +82,22 @@ void loadconfig() {
     char buffer[BUFSIZ];
     char *temp;
     
-    config = fopen(g_strconcat(USER_DIR,"/rssfeeds",NULL),"r+");
-    
-    if(config != NULL) {
-        while(fgets(buffer,BUFSIZ,config) != NULL) {
-            temp = buffer;
-            if (temp[0] == '#') continue;
-            name=strtok(temp,"\\");
-            url=strtok(NULL,"\n");
-            
-            if(url !=  NULL) {
-                add_feed(&feeds,name,url);
+    char* rssfeeds_path = g_strconcat(USER_DIR,"/rssfeeds",NULL);
+    if (rssfeeds_path) {
+        config = fopen(rssfeeds_path,"r+");
+        
+        if(config != NULL) {
+            while(fgets(buffer,BUFSIZ,config) != NULL) {
+                temp = buffer;
+                if (temp[0] == '#') continue;
+                name=strtok(temp,"\\");
+                url=strtok(NULL,"\n");
+                
+                if(url !=  NULL) {
+                    add_feed(&feeds,name,url);
+                }
             }
+            fclose(config);
         }
-
-        fclose(config);
     }
-    
 }
