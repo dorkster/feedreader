@@ -48,7 +48,7 @@ gboolean create_primary_menu() {
         main_menu = gtk_menu_new();
         if (!main_menu) return FALSE;
     } else {
-        gtk_container_foreach( GTK_CONTAINER( main_menu ), (GtkCallback) gtk_widget_destroy, NULL );
+        gtk_container_forall( GTK_CONTAINER( main_menu ), (GtkCallback) gtk_widget_destroy, NULL );
     }
 
     loadconfig();
