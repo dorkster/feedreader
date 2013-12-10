@@ -79,8 +79,7 @@ void remove_article(Article* article) {
 
 void clear_feedlist() {
     while (feed_count > 0) {
-        feed_count--;
-        remove_feed(feed_list[feed_count]);
+        remove_feed(feed_list[feed_count-1]);
     }
     if (feed_list) free(feed_list);
     feed_list = NULL;
