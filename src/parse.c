@@ -21,33 +21,35 @@
 #include <libxml/parser.h>
 #include <string.h>
 
+#include "download.h"
 #include "feedlist.h"
 #include "parse.h"
 #include "util.h"
 
 gboolean parsefeed(int index) {
-    xmlDocPtr file = NULL;
+    download(index,feed_list[index]->uri);
+
+    xmlDocPtr document = NULL;
     xmlNodePtr node = NULL;
 
-    char filename[BUFSIZ];
-    sprintf(filename,"%s/%d",TEMP_DIR,index);
-    file = xmlParseFile(filename);
+    document = xmlParseMemory(download_data.memory, download_data.size);
+    download_clear_data();
     
-    if (file == NULL ) {
+    if (document == NULL ) {
         fprintf(stderr,"Document not parsed successfully. \n");
         return FALSE;
     }
     
-    node = xmlDocGetRootElement(file);
+    node = xmlDocGetRootElement(document);
     
     if (node == NULL) {
        fprintf(stderr,"Empty document. \n");
-        if(file != NULL) xmlFreeDoc(file);
+        if(document != NULL) xmlFreeDoc(document);
         return FALSE;
     } else if ((xmlStrcmp(node->name, (const xmlChar *)"rss"))) {
         fprintf(stderr,"Root node is not 'rss'. \n");
         if(node != NULL) xmlFreeNode(node);
-        if(file != NULL) xmlFreeDoc(file);
+        if(document != NULL) xmlFreeDoc(document);
         return FALSE;
     }
     
@@ -67,7 +69,7 @@ gboolean parsefeed(int index) {
                     while (child_details != NULL) {
                         // article title
                         if ((!xmlStrcmp(child_details->name, (const xmlChar *)"title"))) {
-                            title = xmlNodeListGetString(file, child_details->xmlChildrenNode, 1);
+                            title = xmlNodeListGetString(document, child_details->xmlChildrenNode, 1);
                             if(strlen((char *)title) > MAXLABELSIZE) {
                                 gchar *newtitle = g_strndup((const gchar *)title,MAXLABELSIZE);
                                 title = (xmlChar*)g_strdup(g_strconcat(newtitle,"...",NULL));
@@ -76,7 +78,7 @@ gboolean parsefeed(int index) {
                         }
                         // article link
                         if ((!xmlStrcmp(child_details->name, (const xmlChar *)"link"))) {
-                            link = xmlNodeListGetString(file, child_details->xmlChildrenNode, 1);
+                            link = xmlNodeListGetString(document, child_details->xmlChildrenNode, 1);
                         }
 
                         if (title != NULL && link != NULL) {
@@ -97,7 +99,7 @@ gboolean parsefeed(int index) {
     }
     
     if(node != NULL) xmlFreeNode(node);
-    if(file != NULL) xmlFreeDoc(file);
+    if(document != NULL) xmlFreeDoc(document);
 
     return TRUE;
 }

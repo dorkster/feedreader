@@ -43,24 +43,9 @@ void create_dirs() {
         system(user_dir_cmd);
         free(user_dir_cmd);
     }
-
-    // A temp env variable isn't always used across distros, so this will be hard-coded for now
-    TEMP_DIR = g_strconcat("/tmp/feedreader-",getenv("USER"),"/",NULL);
-    char* temp_dir_cmd = g_strconcat("mkdir -p ",TEMP_DIR,NULL);
-    if (temp_dir_cmd) {
-        system(temp_dir_cmd);
-        free(temp_dir_cmd);
-    }
 }
 
 void clean_up() {
-    char* temp_dir = g_strconcat("rm -rf ",TEMP_DIR,NULL);
-    if (temp_dir) {
-        system(temp_dir);
-        free(temp_dir);
-    }
-
     if (USER_DIR) free(USER_DIR);
-    if (TEMP_DIR) free(TEMP_DIR);
 }
 

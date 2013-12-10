@@ -18,7 +18,6 @@
 
 #include <stdlib.h>
 
-#include "download.h"
 #include "feedlist.h"
 #include "gui.h"
 #include "parse.h"
@@ -65,7 +64,6 @@ gboolean create_primary_menu() {
         gtk_widget_set_tooltip_text(item,(const gchar *)feed_list[i]->uri);
         gtk_widget_set_has_tooltip(item,FALSE);
 
-        download(i,feed_list[i]->uri);
         submenu = gtk_menu_new();
 
         if (parsefeed(i) == TRUE) {

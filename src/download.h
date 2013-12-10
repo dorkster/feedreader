@@ -22,7 +22,13 @@
 #include <stdio.h>
 #define NETTIMEOUT 20 // in seconds
 
-size_t writecurlfile(void *ptr, size_t size, size_t nmemb, FILE *stream);
+typedef struct DownloadData {
+    char* memory;
+    size_t size;
+}DownloadData;
+
+DownloadData download_data;
 void download (int id, char *uri);
+void download_clear_data();
 
 #endif

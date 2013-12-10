@@ -26,7 +26,6 @@
 #define MAX_ARTICLES 10
 
 char *USER_DIR;
-char *TEMP_DIR;
 
 void open_link(gpointer data);
 void create_dirs();

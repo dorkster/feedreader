@@ -18,36 +18,49 @@
 
 #include <curl/curl.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "download.h"
 #include "util.h"
 
-size_t writecurlfile(void *ptr, size_t size, size_t nmemb, FILE *stream) {
-    return fwrite(ptr, size, nmemb, stream);
+static size_t write_callback(void *contents, size_t size, size_t nmemb, void *userp) {
+    size_t realsize = size * nmemb;
+    struct DownloadData *data = (struct DownloadData *)userp;
+
+    data->memory = realloc(data->memory, data->size + realsize + 1);
+    if(!data->memory) return 0;
+
+    memcpy(&(data->memory[data->size]), contents, realsize);
+    data->size += realsize;
+    data->memory[data->size] = 0;
+
+    return realsize;
 }
 
 void download (int id, char *uri) {
+    download_clear_data();
+
     CURL *curl_handle;
-    
-    FILE *outfile;
-    char filename[BUFSIZ];
-    
-    sprintf(filename,"%s/%d",TEMP_DIR,id);
-    
+
     curl_global_init(CURL_GLOBAL_ALL);
-    outfile = fopen(filename, "w+");
     curl_handle = curl_easy_init();
 
-    if(uri != NULL) curl_easy_setopt(curl_handle, CURLOPT_URL, uri);
-    curl_easy_setopt(curl_handle, CURLOPT_WRITEDATA, outfile);
-    curl_easy_setopt(curl_handle, CURLOPT_WRITEFUNCTION, writecurlfile);
+    if(uri) curl_easy_setopt(curl_handle, CURLOPT_URL, uri);
+    curl_easy_setopt(curl_handle, CURLOPT_WRITEDATA, (void*)&download_data);
+    curl_easy_setopt(curl_handle, CURLOPT_WRITEFUNCTION, write_callback);
     curl_easy_setopt(curl_handle, CURLOPT_USERAGENT, "libcurl-agent/1.0");
     curl_easy_setopt(curl_handle, CURLOPT_TIMEOUT, NETTIMEOUT);
 
     curl_easy_perform(curl_handle);
     curl_easy_cleanup(curl_handle);
-    
+
     curl_global_cleanup();
-    
-    fclose(outfile);
+}
+
+void download_clear_data() {
+    if (download_data.memory) {
+        free(download_data.memory);
+        download_data.memory = NULL;
+        download_data.size = 0;
+    }
 }
