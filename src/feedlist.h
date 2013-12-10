@@ -19,27 +19,26 @@
 #ifndef FEEDLIST_H
 #define FEEDLIST_H
 
-typedef struct ArticleList {
-    int id;
+typedef struct Article {
     char *name;
     char *uri;
-    struct ArticleList *next;
-}ArticleList;
+}Article;
 
-typedef struct FeedList {
-    int id;
+typedef struct Feed {
     char *name;
     char *uri;
-    ArticleList *articles;
-    struct FeedList *next;
-}FeedList;
+    Article **articles;
+    int article_count;
+}Feed;
 
-int feedcount;
-int articlecount;
-FeedList *feeds;
+int feed_count;
+Feed **feed_list;
 
-void add_feed(FeedList **list, char *name, char *uri);
-void add_article(ArticleList **list, char *name, char *uri);
+void add_feed(char *name, char *uri);
+void remove_feed(Feed* feed);
+void add_article(int i, char *name, char *uri);
+void remove_article(Article* article);
+void clear_feedlist();
 void loadconfig();
 
 #endif

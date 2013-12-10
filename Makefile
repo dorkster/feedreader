@@ -5,7 +5,7 @@ SOURCES=$(shell ls $(SRCDIR)/*.c)
 OBJECTS=$(patsubst $(SRCDIR)%.c,$(BUILDDIR)%.o, $(SOURCES))
 
 CC=gcc
-CFLAGS+=-g -Wall -O2 -mms-bitfields -std=c99
+CFLAGS+=-Wall -O2 -mms-bitfields -std=c99
 CFLAGS+=`pkg-config --cflags gtk+-2.0` `xml2-config --cflags` `curl-config --cflags`
 LDFLAGS+=`pkg-config --libs gtk+-2.0` `xml2-config --libs` `curl-config --libs`
 

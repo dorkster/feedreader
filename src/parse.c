@@ -25,20 +25,12 @@
 #include "parse.h"
 #include "util.h"
 
-gboolean parsefeed(FeedList *_list) {
-    FeedList *list = _list;
-    int id = 0;
-    articlecount = 0;
-    
-    if(list != NULL) {
-        id = list->id;
-    }
-    
+gboolean parsefeed(int index) {
     xmlDocPtr file = NULL;
     xmlNodePtr node = NULL;
 
     char filename[BUFSIZ];
-    sprintf(filename,"%s/%d",TEMP_DIR,id);
+    sprintf(filename,"%s/%d",TEMP_DIR,index);
     file = xmlParseFile(filename);
     
     if (file == NULL ) {
@@ -88,11 +80,12 @@ gboolean parsefeed(FeedList *_list) {
                         }
 
                         if (title != NULL && link != NULL) {
-                            add_article(&list->articles,(char*)title,(char*)link);
+                            add_article(index,(char*)title,(char*)link);
+                            if (title) xmlFree(title);
+                            if (link) xmlFree(link);
+                            title = NULL;
+                            link = NULL;
                         }
-                        // TODO fix these memory leaks without causing an invalid free
-                        // if (title) xmlFree(title);
-                        // if (link) xmlFree(link);
 
                         child_details = child_details->next;
                     }

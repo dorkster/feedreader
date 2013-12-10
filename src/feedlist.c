@@ -24,57 +24,72 @@
 #include "feedlist.h"
 #include "util.h"
 
-void add_feed(FeedList **list, char *name, char *uri) {
-    FeedList *temp;
-    
-    temp = (FeedList *)malloc(sizeof(FeedList));
-    temp->name = g_strdup(name);
-    temp->uri = g_strdup(uri);
-    temp->articles = NULL;
-    temp->id = feedcount;
-    feedcount++;
-    
-    if(*list == NULL) {
-        *list = temp;
-        (**list).next = NULL;
-    } else {
-        temp->next = *list;
-        *list = temp;
+Feed** feed_list = NULL;
+int feed_count = 0;
+
+void add_feed(char *name, char *uri) {
+    feed_list = (Feed**) realloc(feed_list, sizeof(Feed*) * (feed_count+1));
+    if (feed_list) {
+        feed_list[feed_count] = malloc(sizeof(Feed));
+        if (feed_list[feed_count]) {
+            feed_list[feed_count]->name = g_strdup(name);
+            feed_list[feed_count]->uri = g_strdup(uri);
+            feed_list[feed_count]->articles = NULL;
+            feed_list[feed_count]->article_count = 0;
+            feed_count++;
+        }
     }
 }
 
-void add_article(ArticleList **list, char *name, char *uri) {
-    ArticleList *temp;
-    
-    temp = (ArticleList *)malloc(sizeof(ArticleList));
-    temp->name = g_strdup(name);
-    temp->uri = g_strdup(uri);
-    temp->id = articlecount;
-    articlecount++;
-    
-    if(*list == NULL) {
-        *list = temp;
-        (**list).next = NULL;
-    } else {
-        temp->next = *list;
-        *list = temp;
+void remove_feed(Feed* feed) {
+    if (feed) {
+        if (feed->name) free(feed->name);
+        if (feed->uri) free(feed->uri);
+
+        while (feed->article_count > 0) {
+            feed->article_count--;
+            remove_article(feed->articles[feed->article_count]);
+        }
+
+        if (feed->articles) free(feed->articles);
+        free(feed);
+        feed_count--;
     }
+}
+
+void add_article(int i, char *name, char *uri) {
+    feed_list[i]->articles = (Article**) realloc(feed_list[i]->articles, sizeof(Article*) * (feed_list[i]->article_count+1));
+    if (feed_list[i]->articles) {
+        feed_list[i]->articles[feed_list[i]->article_count] = malloc(sizeof(Article));
+        if (feed_list[i]->articles[feed_list[i]->article_count]) {
+            feed_list[i]->articles[feed_list[i]->article_count]->name = g_strdup(name);
+            feed_list[i]->articles[feed_list[i]->article_count]->uri = g_strdup(uri);
+            feed_list[i]->article_count++;
+        }
+    }
+}
+
+void remove_article(Article* article) {
+    if (article) {
+        if (article->name) free(article->name);
+        if (article->uri) free(article->uri);
+        free(article);
+    }
+}
+
+void clear_feedlist() {
+    while (feed_count > 0) {
+        feed_count--;
+        remove_feed(feed_list[feed_count]);
+    }
+    if (feed_list) free(feed_list);
+    feed_list = NULL;
+    feed_count = 0;
 }
 
 void loadconfig() {
     // Clear the feeds list frist
-    while (feeds != NULL) {
-        free(feeds->name);
-        free(feeds->uri);
-        while (feeds->articles != NULL) {
-            free(feeds->articles->name);
-            free(feeds->articles->uri);
-            feeds->articles = feeds->articles->next;
-        }
-        feeds = feeds->next;
-    }
-
-    feedcount = 0;
+    clear_feedlist();
 
     FILE *config;
     char *name;
@@ -94,10 +109,11 @@ void loadconfig() {
                 url=strtok(NULL,"\n");
                 
                 if(url !=  NULL) {
-                    add_feed(&feeds,name,url);
+                    add_feed(name,url);
                 }
             }
             fclose(config);
         }
+        free(rssfeeds_path);
     }
 }
