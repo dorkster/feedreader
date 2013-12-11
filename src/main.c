@@ -24,6 +24,7 @@
 int main( int argc, char* argv[] ) {
     gtk_init( &argc, &argv );
     
+    set_browser("xdg-open");
     create_dirs();
     create_tray_icon();
     create_primary_menu();

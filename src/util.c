@@ -21,7 +21,13 @@
 
 #include "util.h"
 
+char* BROWSER = NULL;
+int UPDATE_INTERVAL = 600; //seconds
+int MAX_ARTICLES = 10;
+
 void open_link(gpointer data) {
+    if (!BROWSER) return;
+
     gchar *link = gtk_widget_get_tooltip_text(data);
     if(link != NULL) {
         gchar *command = g_strconcat(BROWSER," \"",link,"\" &",NULL);
@@ -49,3 +55,10 @@ void clean_up() {
     if (USER_DIR) free(USER_DIR);
 }
 
+void set_browser(char* new_browser) {
+    if (BROWSER) {
+        free(BROWSER);
+        BROWSER = NULL;
+    }
+    BROWSER = g_strdup(new_browser);
+}

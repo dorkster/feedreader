@@ -75,6 +75,7 @@ EndIf (NOT CURL_FOUND)
 Set (FEEDREADER_SOURCES
     ./src/download.c
     ./src/feedlist.c
+    ./src/fileparser.c
     ./src/gui.c
     ./src/parse.c
     ./src/util.c

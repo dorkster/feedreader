@@ -1,6 +1,6 @@
 /*
     feedreader
-    Copyright (C) 2011-2012  Justin Jacobs
+    Copyright (C) 2013 Justin Jacobs
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -16,19 +16,30 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef UTIL_H
-#define UTIL_H
+#ifndef FILEPARSER_H
+#define FILEPARSER_H
 
 #include <glib.h>
+#include <stdio.h>
 
-char *USER_DIR;
-char *BROWSER;
-int UPDATE_INTERVAL;
-int MAX_ARTICLES;
+typedef struct FileParser{
+    FILE *file;
+    char buffer[BUFSIZ];
+    char *line;
+    char *key;
+    char *val;
+    char *val_next;
+    int val_cursor;
+    gboolean first_tok;
+}FileParser;
 
-void open_link(gpointer data);
-void create_dirs();
-void clean_up();
-void set_browser(char* new_browser);
+FileParser* fileOpen(char *filename);
+char* fileNext(FileParser* f);
+char* fileGetKey(FileParser *f);
+char* fileGetVal(FileParser *f);
+char* fileGetValNext(FileParser* f);
+char* fileGetLine(FileParser *f);
+char* fileEatNextVal(FileParser* f);
+void fileClose(FileParser *f);
 
 #endif

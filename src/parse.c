@@ -36,7 +36,7 @@ gboolean parsefeed(int index) {
     download_clear_data();
     
     if (document == NULL ) {
-        fprintf(stderr,"Document not parsed successfully. \n");
+        fprintf(stderr,"Document not parsed successfully.\n");
         return FALSE;
     }
     

@@ -22,6 +22,7 @@
 #include <glib.h>
 
 #include "feedlist.h"
+#include "fileparser.h"
 #include "util.h"
 
 Feed** feed_list = NULL;
@@ -90,29 +91,31 @@ void loadconfig() {
     // Clear the feeds list frist
     clear_feedlist();
 
-    FILE *config;
-    char *name;
-    char *url;
-    char buffer[BUFSIZ];
-    char *temp;
-    
-    char* rssfeeds_path = g_strconcat(USER_DIR,"/rssfeeds",NULL);
-    if (rssfeeds_path) {
-        config = fopen(rssfeeds_path,"r+");
-        
-        if(config != NULL) {
-            while(fgets(buffer,BUFSIZ,config) != NULL) {
-                temp = buffer;
-                if (temp[0] == '#') continue;
-                name=strtok(temp,"\\");
-                url=strtok(NULL,"\n");
-                
-                if(url !=  NULL) {
-                    add_feed(name,url);
+    FileParser* f;
+    char* config_path = g_strconcat(USER_DIR,"/config",NULL);
+
+    if (config_path) {
+
+        f = fileOpen(config_path);
+        if (f) {
+            while(fileNext(f)) {
+                if (!strcmp("browser",fileGetKey(f))) set_browser(fileGetVal(f));
+                else if (!strcmp("update_interval",fileGetKey(f))) UPDATE_INTERVAL = atoi(fileGetVal(f));
+                else if (!strcmp("max_articles",fileGetKey(f))) MAX_ARTICLES = atoi(fileGetVal(f));
+                else if (!strcmp("feed",fileGetKey(f))) {
+                    char *name = fileEatNextVal(f);
+                    char *url = fileEatNextVal(f);
+
+                    if (url) {
+                        add_feed(name,url);
+                    }
                 }
             }
-            fclose(config);
+            fileClose(f);
+        } else {
+            fprintf(stderr,"Error: Couldn't load config file.\n");
         }
-        free(rssfeeds_path);
+
+        free(config_path);
     }
 }
