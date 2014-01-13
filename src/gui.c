@@ -78,7 +78,7 @@ gboolean create_primary_menu() {
         }
 
         gtk_menu_item_set_submenu(GTK_MENU_ITEM(item), submenu);
-        gtk_menu_prepend(main_menu, item);
+        gtk_menu_append(main_menu, item);
     }
 
     GtkWidget *sep = gtk_separator_menu_item_new();
