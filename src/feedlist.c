@@ -113,7 +113,7 @@ void loadconfig() {
             }
             fileClose(f);
         } else {
-            fprintf(stderr,"Error: Couldn't load config file.\n");
+            fprintf(stderr,"feedreader: Couldn't load config file at \"%s\".\n", config_path);
         }
 
         free(config_path);

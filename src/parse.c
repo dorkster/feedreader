@@ -27,6 +27,8 @@
 #include "util.h"
 
 gboolean parsefeed(int index) {
+    if (!feed_list[index]) return FALSE;
+
     download(index,feed_list[index]->uri);
 
     xmlDocPtr document = NULL;
@@ -36,18 +38,18 @@ gboolean parsefeed(int index) {
     download_clear_data();
     
     if (document == NULL ) {
-        fprintf(stderr,"Document not parsed successfully.\n");
+        fprintf(stderr,"feedreader: Could not parse \"%s\".\n", feed_list[index]->uri);
         return FALSE;
     }
     
     node = xmlDocGetRootElement(document);
     
     if (node == NULL) {
-       fprintf(stderr,"Empty document. \n");
+       fprintf(stderr,"feedreader: Could not find root node in \"%s\".\n", feed_list[index]->uri);
         if(document != NULL) xmlFreeDoc(document);
         return FALSE;
     } else if ((xmlStrcmp(node->name, (const xmlChar *)"rss"))) {
-        fprintf(stderr,"Root node is not 'rss'. \n");
+        fprintf(stderr,"feedreader: Root node of \"%s\" is not \"rss\".\n", feed_list[index]->uri);
         if(node != NULL) {
             xmlUnlinkNode(node);
             xmlFreeNode(node);
