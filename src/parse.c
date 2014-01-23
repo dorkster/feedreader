@@ -48,7 +48,10 @@ gboolean parsefeed(int index) {
         return FALSE;
     } else if ((xmlStrcmp(node->name, (const xmlChar *)"rss"))) {
         fprintf(stderr,"Root node is not 'rss'. \n");
-        if(node != NULL) xmlFreeNode(node);
+        if(node != NULL) {
+            xmlUnlinkNode(node);
+            xmlFreeNode(node);
+        }
         if(document != NULL) xmlFreeDoc(document);
         return FALSE;
     }
@@ -98,7 +101,10 @@ gboolean parsefeed(int index) {
         node = node->next;
     }
     
-    if(node != NULL) xmlFreeNode(node);
+    if(node != NULL) {
+        xmlUnlinkNode(node);
+        xmlFreeNode(node);
+    }
     if(document != NULL) xmlFreeDoc(document);
 
     return TRUE;
