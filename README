@@ -8,9 +8,15 @@ feedreader is a light-weight RSS reader that sits in the user's system tray.
 ## Dependencies & Building
 
 * GTK2
-* libxml2.
+* libxml2
+* cmake
 
-To compile feedreader, simply run `make` in the base directory.
+To compile feedreader, run the following in the base directory:
+
+```
+cmake
+make
+```
 
 
 
