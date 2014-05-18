@@ -35,11 +35,25 @@ Feeds are added via a file called `rssfeeds` in located in the user's `$HOME/.co
 
 This file will not be created automatically, so it is up to the user to do so.
 
-The layout is one feed per line with the following format:
+The config file follows a `key=value` format. Comments are lines beginning with `#`. It uses the following keys:
 
-`Feed Title\Feed URL`
+| Key             | Description
+|-----------------|----------------
+| browser         | An executable to launch when clicking on an article.
+| update_interval | The amount of time (in seconds) between automatic refreshes.
+| max_articles    | The maxiumum number of articles to show per feed.
+| feed            | Two values, separated by a comma. The first value is the title to be displayed for this feed. The second is the URL of a valid RSS feed. This key can be used multiple times to add more feeds.
 
-Example:
+## Example Configuation
 
-`My Favorite RSS\http://www.example.com/feed.rss`
+```
+# settings
+browser=firefox
+update_interval=600
+max_articles=15
+
+# feeds
+feed=Example Feed,http://www.example.com/feed.rss
+feed=Example Feed 2,http://www.example.com/feed2.rss
+```
 
