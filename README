@@ -43,6 +43,7 @@ max_articles=15
 feed=Example Feed,http://www.google.com/feed.rss
 feed=Example Feed 2,http://www.google.com/feed2.rss
 EOF
+```
 
 ### Running
 
