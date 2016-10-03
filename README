@@ -3,13 +3,13 @@
 
 feedreader is a light-weight RSS reader that sits in the user's system tray.
 
-
-
 ## Dependencies & Building
 
 * GTK2
 * libxml2
 * cmake
+
+### Compiling
 
 To compile feedreader, run the following in the base directory:
 
@@ -18,16 +18,39 @@ cmake
 make
 ```
 
+## Installing
 
+To install feedreader, copy these files:
 
-## Copyright & License
+```
+sudo cp feedreader /usr/bin/
+sudo cp feedreader.png /usr/share/pixmaps/
+```
 
-feedreader is Copyright © 2011-2012 Justin Jacobs.
-This software is released under the GNU GPL v3. Later versions are permitted.
+### Configuring
 
-The included feedreader.png icon was released by Steven Garrity under CC BY-SA.
+Create an example Configuation
 
+```
+mkdir -p ~/.config/feedreader
+cat << EOF > ~/.config/feedreader/config
+# settings
+browser=firefox
+update_interval=600
+max_articles=15
 
+# feeds
+feed=Example Feed,http://www.google.com/feed.rss
+feed=Example Feed 2,http://www.google.com/feed2.rss
+EOF
+
+### Running
+
+Just run it as a background process
+
+```
+feedreader &
+```
 
 ## Usage
 
@@ -44,16 +67,9 @@ The config file follows a `key=value` format. Comments are lines beginning with 
 | max_articles    | The maxiumum number of articles to show per feed.
 | feed            | Two values, separated by a comma. The first value is the title to be displayed for this feed. The second is the URL of a valid RSS feed. This key can be used multiple times to add more feeds.
 
-## Example Configuation
+## Copyright & License
 
-```
-# settings
-browser=firefox
-update_interval=600
-max_articles=15
+feedreader is Copyright © 2011-2012 Justin Jacobs.
+This software is released under the GNU GPL v3. Later versions are permitted.
 
-# feeds
-feed=Example Feed,http://www.example.com/feed.rss
-feed=Example Feed 2,http://www.example.com/feed2.rss
-```
-
+The included feedreader.png icon was released by Steven Garrity under CC BY-SA.
