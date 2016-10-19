@@ -84,6 +84,6 @@ install(PROGRAMS
   ${CMAKE_CURRENT_BINARY_DIR}/feedreader
   DESTINATION ${BINDIR})
 install(FILES
-  "${CMAKE_CURRENT_SOURCE_DIR}/feedreader.png"
+  "${CMAKE_CURRENT_SOURCE_DIR}/feedreader.svg"
   DESTINATION ${CMAKE_INSTALL_PREFIX}/share/pixmaps)
 

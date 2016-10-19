@@ -70,7 +70,7 @@ The config file follows a `key=value` format. Comments are lines beginning with 
 
 ## Copyright & License
 
-feedreader is Copyright © 2011-2012 Justin Jacobs.
-This software is released under the GNU GPL v3. Later versions are permitted.
+feedreader is Copyright © 2011-2016 Justin Jacobs.
+This software is released under the GNU GPL v3 license. Later versions are permitted.
 
-The included feedreader.png icon was released by Steven Garrity under CC BY-SA.
+The included feedreader.svg icon was released by Victor Castillejo (perfectska04) under the GNU GPL v2 license.

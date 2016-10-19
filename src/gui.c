@@ -31,8 +31,9 @@ struct PrefWindow prefs = {};
 void create_tray_icon() {
     // Set the status icon and make it visible
     GtkIconTheme *icontheme = gtk_icon_theme_get_default();
-    status_icon = gtk_status_icon_new_from_pixbuf(gtk_icon_theme_load_icon(icontheme,"feedreader",16,0,NULL));
-    if (!gtk_status_icon_get_pixbuf(status_icon)) gtk_status_icon_set_from_file(status_icon, "/usr/share/pixmaps/feedreader.png");
+    status_icon = gtk_status_icon_new_from_pixbuf(gtk_icon_theme_load_icon(icontheme,"feedreader",-1,0,NULL));
+    if (!gtk_status_icon_get_pixbuf(status_icon)) gtk_status_icon_set_from_file(status_icon, "/usr/share/pixmaps/feedreader.svg");
+    if (!gtk_status_icon_get_pixbuf(status_icon)) gtk_status_icon_set_from_file(status_icon, "./feedreader.svg");
     if (!gtk_status_icon_get_pixbuf(status_icon)) gtk_status_icon_set_from_stock(status_icon, GTK_STOCK_EXECUTE);
     gtk_status_icon_set_visible(status_icon, TRUE);
 
