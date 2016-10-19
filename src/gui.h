@@ -22,14 +22,35 @@
 #include <gtk/gtk.h>
 #include <glib.h>
 
+struct PrefWindow {
+    GtkWidget* window;
+    GtkWidget* button_ok;
+    GtkWidget* button_cancel;
+    GtkWidget* entry_browser;
+    GtkWidget* spin_update;
+    GtkWidget* spin_articles;
+    GtkWidget* tree_feeds;
+    GtkWidget* button_feed_remove;
+    GtkWidget* button_feed_add;
+};
+
 GtkWidget *main_menu;
 GtkWidget *alt_menu;
 GtkStatusIcon *status_icon;
+struct PrefWindow prefs;
 
 void create_tray_icon();
 gboolean create_primary_menu();
 void destroy (GtkWidget *widget, gpointer data);
 void primary_menu (GtkStatusIcon *status_icon, gpointer user_data);
 void alternate_menu (GtkStatusIcon *status_icon, guint button, guint activate_time, gpointer user_data);
+void create_pref_window();
+void destroy_pref_window(GtkWidget *widget, gpointer data);
+void show_pref_window(GtkWidget *widget, gpointer data);
+void pref_feed_edited(GtkCellRendererText *cell, gchar *path_string, gchar *new_text, gpointer user_data);
+void pref_apply(GtkWidget* widget, gpointer data);
+gboolean pref_feed_foreach(GtkTreeModel *model, GtkTreePath *path, GtkTreeIter *iter, gpointer user_data);
+void pref_feed_remove(GtkWidget* widget, gpointer data);
+void pref_feed_add(GtkWidget* widget, gpointer data);
 
 #endif
