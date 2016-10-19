@@ -20,29 +20,10 @@ make
 
 ## Installing
 
-To install feedreader, copy these files:
+To install feedreader:
 
 ```
-sudo cp feedreader /usr/bin/
-sudo cp feedreader.png /usr/share/pixmaps/
-```
-
-### Configuring
-
-Create an example Configuation
-
-```
-mkdir -p ~/.config/feedreader
-cat << EOF > ~/.config/feedreader/config
-# settings
-browser=firefox
-update_interval=600
-max_articles=15
-
-# feeds
-feed=Example Feed,http://www.google.com/feed.rss
-feed=Example Feed 2,http://www.google.com/feed2.rss
-EOF
+sudo make install
 ```
 
 ### Running
@@ -55,9 +36,9 @@ feedreader &
 
 ## Usage
 
-Feeds are added via a file called `rssfeeds` in located in the user's `$HOME/.config/feedreader` folder.
+Feeds can be added in the Preferences dialog which is accessed via right-clicking on the tray icon.
 
-This file will not be created automatically, so it is up to the user to do so.
+The configuation file is automatically created and is located at `$HOME/.config/feedreader/config`.
 
 The config file follows a `key=value` format. Comments are lines beginning with `#`. It uses the following keys:
 

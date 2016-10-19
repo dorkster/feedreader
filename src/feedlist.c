@@ -92,7 +92,7 @@ void loadconfig() {
     clear_feedlist();
 
     FileParser* f;
-    char* config_path = g_strconcat(USER_DIR,"/config",NULL);
+    char* config_path = g_strconcat(USER_DIR,"config",NULL);
 
     if (config_path) {
 
@@ -114,6 +114,16 @@ void loadconfig() {
             fileClose(f);
         } else {
             fprintf(stderr,"feedreader: Couldn't load config file at \"%s\".\n", config_path);
+
+            FILE *out_file = fopen(config_path, "w+");
+            if (out_file) {
+                fprintf(out_file, "# settings\n");
+                fprintf(out_file, "browser=%s\n", BROWSER);
+                fprintf(out_file, "update_interval=%u\n", UPDATE_INTERVAL);
+                fprintf(out_file, "max_articles=%u\n", MAX_ARTICLES);
+
+                fprintf(out_file, "\n# feeds\n");
+            }
         }
 
         free(config_path);
