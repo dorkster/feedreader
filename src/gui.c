@@ -128,7 +128,8 @@ void alternate_menu(GtkStatusIcon *status_icon, guint button, guint activate_tim
 
 void create_pref_window() {
     prefs.window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
-    gtk_window_set_default_size(GTK_WINDOW(prefs.window), 300, 400);
+    gtk_window_set_default_size(GTK_WINDOW(prefs.window), 640, 480);
+    gtk_window_set_title(GTK_WINDOW(prefs.window), "feedreader Preferences");
     g_signal_connect(G_OBJECT(prefs.window), "delete_event", G_CALLBACK(destroy_pref_window), NULL);
 
     GtkWidget* vbox = gtk_vbox_new(FALSE, 0);
