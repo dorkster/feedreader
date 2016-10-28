@@ -83,6 +83,9 @@ gboolean create_primary_menu() {
             }
         }
 
+        // we might have loaded the feed title from the RSS file, so update it
+        gtk_menu_item_set_label(GTK_MENU_ITEM(item), feed_list[i]->name);
+
         gtk_menu_item_set_submenu(GTK_MENU_ITEM(item), submenu);
         gtk_menu_append(main_menu, item);
     }
@@ -306,5 +309,5 @@ void pref_feed_add(GtkWidget* widget, gpointer data) {
     GtkTreeModel *model = gtk_tree_view_get_model(GTK_TREE_VIEW(prefs.tree_feeds));
     GtkTreeIter iter;
     gtk_list_store_append(GTK_LIST_STORE(model), &iter);
-    gtk_list_store_set(GTK_LIST_STORE(model), &iter, 0, "New Feed", 1, "http://", -1);
+    gtk_list_store_set(GTK_LIST_STORE(model), &iter, 0, "<New Feed>", 1, "http://", -1);
 }

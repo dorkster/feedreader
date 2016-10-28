@@ -97,6 +97,12 @@ gboolean parsefeed(int index) {
                         child_details = child_details->next;
                     }
                 }
+                else if ((!xmlStrcmp(child_item->name, (const xmlChar *)"title"))) {
+                    if (feed_list[index]->name && strcmp(feed_list[index]->name, "<New Feed>") == 0) {
+                        free(feed_list[index]->name);
+                        feed_list[index]->name = g_strdup(xmlNodeListGetString(document, child_item->xmlChildrenNode, 1));
+                    }
+                }
                 child_item = child_item->next;
             }
         }
