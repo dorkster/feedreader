@@ -209,6 +209,12 @@ void create_pref_window() {
     prefs.button_feed_add = gtk_button_new_from_stock(GTK_STOCK_ADD);
     g_signal_connect(G_OBJECT(prefs.button_feed_add), "clicked", G_CALLBACK(pref_feed_add), NULL);
 
+    prefs.button_feed_moveup = gtk_button_new_from_stock(GTK_STOCK_GO_UP);
+    g_signal_connect(G_OBJECT(prefs.button_feed_moveup), "clicked", G_CALLBACK(pref_feed_moveup), NULL);
+
+    prefs.button_feed_movedown = gtk_button_new_from_stock(GTK_STOCK_GO_DOWN);
+    g_signal_connect(G_OBJECT(prefs.button_feed_movedown), "clicked", G_CALLBACK(pref_feed_movedown), NULL);
+
     GtkWidget* hbox_feeds = gtk_hbox_new(FALSE, 0);
     GtkWidget* vbox_feed_buttons = gtk_vbox_new(FALSE, 0);
     gtk_box_pack_start(GTK_BOX(vbox), hbox_feeds, TRUE, TRUE, 0);
@@ -216,6 +222,8 @@ void create_pref_window() {
     gtk_box_pack_start(GTK_BOX(hbox_feeds), vbox_feed_buttons, FALSE, FALSE, 0);
     gtk_box_pack_start(GTK_BOX(vbox_feed_buttons), prefs.button_feed_remove, TRUE, FALSE, 0);
     gtk_box_pack_start(GTK_BOX(vbox_feed_buttons), prefs.button_feed_add, TRUE, FALSE, 0);
+    gtk_box_pack_start(GTK_BOX(vbox_feed_buttons), prefs.button_feed_moveup, TRUE, FALSE, 0);
+    gtk_box_pack_start(GTK_BOX(vbox_feed_buttons), prefs.button_feed_movedown, TRUE, FALSE, 0);
 
     // dialog buttons
     prefs.button_cancel = gtk_button_new_from_stock(GTK_STOCK_CANCEL);
@@ -272,7 +280,7 @@ void pref_apply(GtkWidget* widget, gpointer data) {
 
             fprintf(f, "\n# feeds\n");
             GtkTreeModel *model = gtk_tree_view_get_model(GTK_TREE_VIEW(prefs.tree_feeds));
-            gtk_tree_model_foreach(GTK_TREE_MODEL(model), pref_feed_foreach, (gpointer)f);
+            gtk_tree_model_foreach(GTK_TREE_MODEL(model), pref_feed_write_config, (gpointer)f);
 
             fclose(f);
         }
@@ -284,7 +292,7 @@ void pref_apply(GtkWidget* widget, gpointer data) {
     create_primary_menu();
 }
 
-gboolean pref_feed_foreach(GtkTreeModel *model, GtkTreePath *path, GtkTreeIter *iter, gpointer user_data) {
+gboolean pref_feed_write_config(GtkTreeModel *model, GtkTreePath *path, GtkTreeIter *iter, gpointer user_data) {
     gchar *name;
     gchar *uri;
 
@@ -301,8 +309,9 @@ gboolean pref_feed_foreach(GtkTreeModel *model, GtkTreePath *path, GtkTreeIter *
 void pref_feed_remove(GtkWidget* widget, gpointer data) {
     GtkTreeModel *model = gtk_tree_view_get_model(GTK_TREE_VIEW(prefs.tree_feeds));
     GtkTreeIter iter;
-    gtk_tree_selection_get_selected(gtk_tree_view_get_selection(GTK_TREE_VIEW(prefs.tree_feeds)), &model, &iter);
-    gtk_list_store_remove(GTK_LIST_STORE(model), &iter);
+    if (gtk_tree_selection_get_selected(gtk_tree_view_get_selection(GTK_TREE_VIEW(prefs.tree_feeds)), &model, &iter)) {
+        gtk_list_store_remove(GTK_LIST_STORE(model), &iter);
+    }
 }
 
 void pref_feed_add(GtkWidget* widget, gpointer data) {
@@ -310,4 +319,31 @@ void pref_feed_add(GtkWidget* widget, gpointer data) {
     GtkTreeIter iter;
     gtk_list_store_append(GTK_LIST_STORE(model), &iter);
     gtk_list_store_set(GTK_LIST_STORE(model), &iter, 0, "<New Feed>", 1, "http://", -1);
+}
+
+void pref_feed_moveup(GtkWidget* widget, gpointer data) {
+    GtkTreeModel *model = gtk_tree_view_get_model(GTK_TREE_VIEW(prefs.tree_feeds));
+    GtkTreeIter iter;
+    gtk_tree_selection_get_selected(gtk_tree_view_get_selection(GTK_TREE_VIEW(prefs.tree_feeds)), &model, &iter);
+
+    GtkTreeIter prev_iter = iter;
+    GtkTreePath *path = gtk_tree_model_get_path(model, &iter);
+    if (gtk_tree_path_prev(path)) {
+        gtk_tree_model_get_iter(model, &prev_iter, path);
+        gtk_list_store_move_before(GTK_LIST_STORE(model), &iter, &prev_iter);
+    }
+
+    gtk_tree_path_free(path);
+}
+
+void pref_feed_movedown(GtkWidget* widget, gpointer data) {
+    GtkTreeModel *model = gtk_tree_view_get_model(GTK_TREE_VIEW(prefs.tree_feeds));
+    GtkTreeIter iter;
+    gtk_tree_selection_get_selected(gtk_tree_view_get_selection(GTK_TREE_VIEW(prefs.tree_feeds)), &model, &iter);
+
+    GtkTreeIter next_iter = iter;
+
+    if (gtk_tree_model_iter_next(model, &next_iter)) {
+        gtk_list_store_move_after(GTK_LIST_STORE(model), &iter, &next_iter);
+    }
 }

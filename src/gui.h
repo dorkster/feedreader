@@ -32,6 +32,8 @@ struct PrefWindow {
     GtkWidget* tree_feeds;
     GtkWidget* button_feed_remove;
     GtkWidget* button_feed_add;
+    GtkWidget* button_feed_moveup;
+    GtkWidget* button_feed_movedown;
 };
 
 GtkWidget *main_menu;
@@ -49,8 +51,10 @@ void destroy_pref_window(GtkWidget *widget, gpointer data);
 void show_pref_window(GtkWidget *widget, gpointer data);
 void pref_feed_edited(GtkCellRendererText *cell, gchar *path_string, gchar *new_text, gpointer user_data);
 void pref_apply(GtkWidget* widget, gpointer data);
-gboolean pref_feed_foreach(GtkTreeModel *model, GtkTreePath *path, GtkTreeIter *iter, gpointer user_data);
+gboolean pref_feed_write_config(GtkTreeModel *model, GtkTreePath *path, GtkTreeIter *iter, gpointer user_data);
 void pref_feed_remove(GtkWidget* widget, gpointer data);
 void pref_feed_add(GtkWidget* widget, gpointer data);
+void pref_feed_moveup(GtkWidget* widget, gpointer data);
+void pref_feed_movedown(GtkWidget* widget, gpointer data);
 
 #endif
