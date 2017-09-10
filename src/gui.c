@@ -130,13 +130,29 @@ void alternate_menu(GtkStatusIcon *status_icon, guint button, guint activate_tim
 }
 
 void create_pref_window() {
+    guint padding = 8;
+
     prefs.window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
-    gtk_window_set_default_size(GTK_WINDOW(prefs.window), 640, 480);
+    gtk_window_set_default_size(GTK_WINDOW(prefs.window), 480, 320);
     gtk_window_set_title(GTK_WINDOW(prefs.window), "feedreader Preferences");
     g_signal_connect(G_OBJECT(prefs.window), "delete_event", G_CALLBACK(destroy_pref_window), NULL);
 
-    GtkWidget* vbox = gtk_vbox_new(FALSE, 0);
-    gtk_container_add(GTK_CONTAINER(prefs.window), vbox);
+    GtkWidget* vbox_window = gtk_vbox_new(FALSE, 0);
+    gtk_container_add(GTK_CONTAINER(prefs.window), vbox_window);
+
+    GtkWidget* frame_options = gtk_frame_new("Options");
+    gtk_container_set_border_width(GTK_CONTAINER(frame_options), padding);
+    gtk_box_pack_start(GTK_BOX(vbox_window), frame_options, FALSE, FALSE, 0);
+
+    GtkWidget* vbox_options = gtk_vbox_new(FALSE, 0);
+    gtk_container_add(GTK_CONTAINER(frame_options), vbox_options);
+
+    GtkWidget* frame_feeds = gtk_frame_new("Feeds");
+    gtk_container_set_border_width(GTK_CONTAINER(frame_feeds), padding);
+    gtk_box_pack_start(GTK_BOX(vbox_window), frame_feeds, TRUE, TRUE, 0);
+
+    GtkWidget* vbox_feeds = gtk_vbox_new(FALSE, 0);
+    gtk_container_add(GTK_CONTAINER(frame_feeds), vbox_feeds);
 
     // browser
     prefs.entry_browser = gtk_entry_new();
@@ -145,9 +161,9 @@ void create_pref_window() {
     GtkWidget* label_browser = gtk_label_new("Browser");
 
     GtkWidget* hbox_browser = gtk_hbox_new(FALSE, 0);
-    gtk_box_pack_start(GTK_BOX(vbox), hbox_browser, FALSE, FALSE, 0);
-    gtk_box_pack_start(GTK_BOX(hbox_browser), label_browser, FALSE, FALSE, 0);
-    gtk_box_pack_end(GTK_BOX(hbox_browser), prefs.entry_browser, FALSE, FALSE, 0);
+    gtk_box_pack_start(GTK_BOX(vbox_options), hbox_browser, FALSE, FALSE, padding);
+    gtk_box_pack_start(GTK_BOX(hbox_browser), label_browser, FALSE, FALSE, padding);
+    gtk_box_pack_end(GTK_BOX(hbox_browser), prefs.entry_browser, FALSE, FALSE, padding);
 
     // update interval
     prefs.spin_update = gtk_spin_button_new_with_range(10, UINT_MAX, 1);
@@ -156,9 +172,9 @@ void create_pref_window() {
     GtkWidget* label_update = gtk_label_new("Update Interval (seconds)");
 
     GtkWidget* hbox_update = gtk_hbox_new(FALSE, 0);
-    gtk_box_pack_start(GTK_BOX(vbox), hbox_update, FALSE, FALSE, 0);
-    gtk_box_pack_start(GTK_BOX(hbox_update), label_update, FALSE, FALSE, 0);
-    gtk_box_pack_end(GTK_BOX(hbox_update), prefs.spin_update, FALSE, FALSE, 0);
+    gtk_box_pack_start(GTK_BOX(vbox_options), hbox_update, FALSE, FALSE, padding);
+    gtk_box_pack_start(GTK_BOX(hbox_update), label_update, FALSE, FALSE, padding);
+    gtk_box_pack_end(GTK_BOX(hbox_update), prefs.spin_update, FALSE, FALSE, padding);
 
     // max articles
     prefs.spin_articles = gtk_spin_button_new_with_range(1, UINT_MAX, 1);
@@ -167,9 +183,9 @@ void create_pref_window() {
     GtkWidget* label_articles = gtk_label_new("Max Articles per Feed");
 
     GtkWidget* hbox_articles = gtk_hbox_new(FALSE, 0);
-    gtk_box_pack_start(GTK_BOX(vbox), hbox_articles, FALSE, FALSE, 0);
-    gtk_box_pack_start(GTK_BOX(hbox_articles), label_articles, FALSE, FALSE, 0);
-    gtk_box_pack_end(GTK_BOX(hbox_articles), prefs.spin_articles, FALSE, FALSE, 0);
+    gtk_box_pack_start(GTK_BOX(vbox_options), hbox_articles, FALSE, FALSE, padding);
+    gtk_box_pack_start(GTK_BOX(hbox_articles), label_articles, FALSE, FALSE, padding);
+    gtk_box_pack_end(GTK_BOX(hbox_articles), prefs.spin_articles, FALSE, FALSE, padding);
 
     // feeds
     GtkWidget *scroll_feeds = gtk_scrolled_window_new(NULL, NULL);
@@ -203,6 +219,11 @@ void create_pref_window() {
     gtk_tree_view_set_model(GTK_TREE_VIEW(prefs.tree_feeds), GTK_TREE_MODEL(list_feeds));
     g_object_unref(list_feeds);
 
+    GtkTreeSelection *tree_selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(prefs.tree_feeds));
+    gtk_tree_selection_set_mode(tree_selection, GTK_SELECTION_BROWSE);
+    GtkTreePath* path_to_first = gtk_tree_path_new_from_string("0");
+    gtk_tree_selection_select_path(tree_selection, path_to_first);
+
     prefs.button_feed_remove = gtk_button_new_from_stock(GTK_STOCK_DELETE);
     g_signal_connect(G_OBJECT(prefs.button_feed_remove), "clicked", G_CALLBACK(pref_feed_remove), NULL);
 
@@ -217,13 +238,13 @@ void create_pref_window() {
 
     GtkWidget* hbox_feeds = gtk_hbox_new(FALSE, 0);
     GtkWidget* vbox_feed_buttons = gtk_vbox_new(FALSE, 0);
-    gtk_box_pack_start(GTK_BOX(vbox), hbox_feeds, TRUE, TRUE, 0);
-    gtk_box_pack_start(GTK_BOX(hbox_feeds), scroll_feeds, TRUE, TRUE, 0);
-    gtk_box_pack_start(GTK_BOX(hbox_feeds), vbox_feed_buttons, FALSE, FALSE, 0);
-    gtk_box_pack_start(GTK_BOX(vbox_feed_buttons), prefs.button_feed_remove, TRUE, FALSE, 0);
-    gtk_box_pack_start(GTK_BOX(vbox_feed_buttons), prefs.button_feed_add, TRUE, FALSE, 0);
-    gtk_box_pack_start(GTK_BOX(vbox_feed_buttons), prefs.button_feed_moveup, TRUE, FALSE, 0);
-    gtk_box_pack_start(GTK_BOX(vbox_feed_buttons), prefs.button_feed_movedown, TRUE, FALSE, 0);
+    gtk_box_pack_start(GTK_BOX(vbox_feeds), hbox_feeds, TRUE, TRUE, padding);
+    gtk_box_pack_start(GTK_BOX(hbox_feeds), scroll_feeds, TRUE, TRUE, padding);
+    gtk_box_pack_start(GTK_BOX(hbox_feeds), vbox_feed_buttons, FALSE, FALSE, padding);
+    gtk_box_pack_start(GTK_BOX(vbox_feed_buttons), prefs.button_feed_add, FALSE, FALSE, padding);
+    gtk_box_pack_start(GTK_BOX(vbox_feed_buttons), prefs.button_feed_remove, FALSE, FALSE, padding);
+    gtk_box_pack_start(GTK_BOX(vbox_feed_buttons), prefs.button_feed_moveup, FALSE, FALSE, padding);
+    gtk_box_pack_start(GTK_BOX(vbox_feed_buttons), prefs.button_feed_movedown, FALSE, FALSE, padding);
 
     // dialog buttons
     prefs.button_cancel = gtk_button_new_from_stock(GTK_STOCK_CANCEL);
@@ -233,7 +254,8 @@ void create_pref_window() {
     g_signal_connect(G_OBJECT(prefs.button_ok), "clicked", G_CALLBACK(pref_apply), NULL);
 
     GtkWidget* hbox_buttons = gtk_hbox_new(FALSE, 0);
-    gtk_box_pack_end(GTK_BOX(vbox), hbox_buttons, FALSE, FALSE, 0);
+    gtk_container_set_border_width(GTK_CONTAINER(hbox_buttons), padding);
+    gtk_box_pack_start(GTK_BOX(vbox_window), hbox_buttons, FALSE, FALSE, 0);
     gtk_box_pack_end(GTK_BOX(hbox_buttons), prefs.button_ok, FALSE, FALSE, 0);
     gtk_box_pack_end(GTK_BOX(hbox_buttons), prefs.button_cancel, FALSE, FALSE, 0);
 }
@@ -309,22 +331,42 @@ gboolean pref_feed_write_config(GtkTreeModel *model, GtkTreePath *path, GtkTreeI
 void pref_feed_remove(GtkWidget* widget, gpointer data) {
     GtkTreeModel *model = gtk_tree_view_get_model(GTK_TREE_VIEW(prefs.tree_feeds));
     GtkTreeIter iter;
-    if (gtk_tree_selection_get_selected(gtk_tree_view_get_selection(GTK_TREE_VIEW(prefs.tree_feeds)), &model, &iter)) {
+    GtkTreeSelection *tree_selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(prefs.tree_feeds));
+
+    if (gtk_tree_selection_get_selected(tree_selection, &model, &iter)) {
+        GtkTreePath *new_path = gtk_tree_model_get_path(model, &iter);
+        if (gtk_tree_path_prev(new_path)) {
+            gtk_tree_selection_select_path(tree_selection, new_path);
+        }
+
         gtk_list_store_remove(GTK_LIST_STORE(model), &iter);
+
+        if (!gtk_tree_selection_get_selected(tree_selection, &model, &iter)) {
+            GtkTreePath* path_to_first = gtk_tree_path_new_from_string("0");
+            gtk_tree_selection_select_path(tree_selection, path_to_first);
+        }
     }
 }
 
 void pref_feed_add(GtkWidget* widget, gpointer data) {
     GtkTreeModel *model = gtk_tree_view_get_model(GTK_TREE_VIEW(prefs.tree_feeds));
     GtkTreeIter iter;
+    GtkTreeSelection *tree_selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(prefs.tree_feeds));
+
     gtk_list_store_append(GTK_LIST_STORE(model), &iter);
     gtk_list_store_set(GTK_LIST_STORE(model), &iter, 0, "<New Feed>", 1, "http://", -1);
+
+    gtk_tree_selection_select_iter(tree_selection, &iter);
 }
 
 void pref_feed_moveup(GtkWidget* widget, gpointer data) {
     GtkTreeModel *model = gtk_tree_view_get_model(GTK_TREE_VIEW(prefs.tree_feeds));
     GtkTreeIter iter;
-    gtk_tree_selection_get_selected(gtk_tree_view_get_selection(GTK_TREE_VIEW(prefs.tree_feeds)), &model, &iter);
+    GtkTreeSelection *tree_selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(prefs.tree_feeds));
+
+    if (!gtk_tree_selection_get_selected(tree_selection, &model, &iter)) {
+        return;
+    }
 
     GtkTreeIter prev_iter = iter;
     GtkTreePath *path = gtk_tree_model_get_path(model, &iter);
@@ -339,7 +381,11 @@ void pref_feed_moveup(GtkWidget* widget, gpointer data) {
 void pref_feed_movedown(GtkWidget* widget, gpointer data) {
     GtkTreeModel *model = gtk_tree_view_get_model(GTK_TREE_VIEW(prefs.tree_feeds));
     GtkTreeIter iter;
-    gtk_tree_selection_get_selected(gtk_tree_view_get_selection(GTK_TREE_VIEW(prefs.tree_feeds)), &model, &iter);
+    GtkTreeSelection *tree_selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(prefs.tree_feeds));
+
+    if (!gtk_tree_selection_get_selected(tree_selection, &model, &iter)) {
+        return;
+    }
 
     GtkTreeIter next_iter = iter;
 
