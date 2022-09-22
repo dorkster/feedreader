@@ -31,8 +31,8 @@ typedef struct Feed {
     int article_count;
 }Feed;
 
-int feed_count;
-Feed **feed_list;
+extern int feed_count;
+extern Feed **feed_list;
 
 void add_feed(char *name, char *uri);
 void remove_feed(Feed* feed);

@@ -25,8 +25,8 @@
 #include "fileparser.h"
 #include "util.h"
 
-Feed** feed_list = NULL;
 int feed_count = 0;
+Feed** feed_list = NULL;
 
 void add_feed(char *name, char *uri) {
     feed_list = (Feed**) realloc(feed_list, sizeof(Feed*) * (feed_count+1));

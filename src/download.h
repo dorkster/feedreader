@@ -27,7 +27,8 @@ typedef struct DownloadData {
     size_t size;
 }DownloadData;
 
-DownloadData download_data;
+extern DownloadData download_data;
+
 void download (int id, char *uri);
 void download_clear_data();
 

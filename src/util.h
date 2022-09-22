@@ -21,10 +21,10 @@
 
 #include <glib.h>
 
-char *USER_DIR;
-char *BROWSER;
-int UPDATE_INTERVAL;
-int MAX_ARTICLES;
+extern char *USER_DIR;
+extern char *BROWSER;
+extern int UPDATE_INTERVAL;
+extern int MAX_ARTICLES;
 
 void open_link(gpointer data);
 void create_dirs();

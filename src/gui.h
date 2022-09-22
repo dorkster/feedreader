@@ -36,10 +36,10 @@ struct PrefWindow {
     GtkWidget* button_feed_movedown;
 };
 
-GtkWidget *main_menu;
-GtkWidget *alt_menu;
-GtkStatusIcon *status_icon;
-struct PrefWindow prefs;
+extern GtkWidget *main_menu;
+extern GtkWidget *alt_menu;
+extern GtkStatusIcon *status_icon;
+extern struct PrefWindow prefs;
 
 void create_tray_icon();
 gboolean create_primary_menu();

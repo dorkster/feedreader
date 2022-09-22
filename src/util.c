@@ -21,6 +21,7 @@
 
 #include "util.h"
 
+char* USER_DIR = NULL;
 char* BROWSER = NULL;
 int UPDATE_INTERVAL = 600; //seconds
 int MAX_ARTICLES = 10;

@@ -23,6 +23,8 @@
 #include "download.h"
 #include "util.h"
 
+DownloadData download_data = {};
+
 static size_t write_callback(void *contents, size_t size, size_t nmemb, void *userp) {
     size_t realsize = size * nmemb;
     struct DownloadData *data = (struct DownloadData *)userp;
